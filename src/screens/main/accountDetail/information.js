@@ -35,8 +35,16 @@ const AccountInformation = ({navigation}) => {
       {/* Form */}
       <ScrollView style={styles.formContainer}>
         {/* Tên vị trí */}
-        <CommonTextInput title={'Họ và tên'} style={{marginBottom: 15}} rightIcon={null} />
-        <CommonTextInput title={'Email'} style={{marginBottom: 15}} rightIcon={null} />
+        <CommonTextInput
+          title={'Họ và tên'}
+          style={{marginBottom: 15}}
+          rightIcon={null}
+        />
+        <CommonTextInput
+          title={'Email'}
+          style={{marginBottom: 15}}
+          rightIcon={null}
+        />
         {/* Cấu hình WiFi */}
         <CommonButton
           text="Lưu Cập Nhật"

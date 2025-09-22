@@ -1,3 +1,4 @@
+//img
 export const NextapLogo = require('./img/NextapLogo.png');
 export const imgSentResetPasswordDone = require('./img/imgSentResetPasswordDone.png');
 export const imgRegisterSuccess = require('./img/imgRegisterSuccess.png');
@@ -9,6 +10,7 @@ export const imgThemeAutumn = require('./img/imgThemeAutumn.png');
 export const imgThemeWinter = require('./img/imgThemeWinter.png');
 export const imgScanNFC = require('./img/imgScanNFC.png');
 
+//icon
 export const icEye = require('./icon/icEye.png');
 export const icBack = require('./icon/icLeftArrow.png');
 export const icListInactive = require('./icon/icListInactive.png');
@@ -47,3 +49,10 @@ export const icRadioUnSelect = require('./icon/icRadioUnSelect.png');
 export const icRadioSelected = require('./icon/icRadioSelected.png');
 export const icWifi = require('./icon/icWifi.png');
 export const icBackBlack = require('./icon/icBackBlack.png');
+export const icAddTagGrey = require('./icon/icAddTagGrey.png');
+export const icLoading = require('./icon/icLoading.png');
+export const icShare = require('./icon/icShare.png');
+export const icWifiLocation = require('./icon/icWifiLocation.png');
+
+//svg
+export const shareQRSvg = require('./svg/shareQR.svg');

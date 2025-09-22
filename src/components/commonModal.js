@@ -49,10 +49,12 @@ const CommonModal = ({
                   borderBottomWidth: 0,
                 },
               ]}>
-              {header && (
+              {header ? (
                 <Text style={[styles.headerText, headerTxtStyle]}>
                   {isWarning ? '' : header}
                 </Text>
+              ) : (
+                <View style={{flex: 1}} />
               )}
               {isHaveCloseBtn && (
                 <TouchableOpacity onPress={onClose} style={styles.closeBtn}>

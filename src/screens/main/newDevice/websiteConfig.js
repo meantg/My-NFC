@@ -53,19 +53,20 @@ const CONTENT_ITEMS = [
     value: 'Ẩm thực đường phố',
     icon: icLink, // Placeholder, replace with image if available
   },
-  {
-    id: '4',
-    type: 'rating',
-    label: 'Đánh Giá',
-    value: 'Đánh giá dịch vụ',
-    icon: icRating, // Placeholder, replace with image if available
-  },
+  // {
+  //   id: '4',
+  //   type: 'rating',
+  //   label: 'Đánh Giá',
+  //   value: 'Đánh giá dịch vụ',
+  //   icon: icRating, // Placeholder, replace with image if available
+  // },
 ];
 
 const WebsiteConfigScreen = ({navigation}) => {
   const [tab, setTab] = useState('layout');
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isWarningModal, setIsWarningModal] = useState(false);
+  const [warningTitle, setWarningTitle] = useState('');
   const [contentType, setContentType] = useState(null);
   const [contentData, setContentData] = useState({
     title: '',
@@ -74,10 +75,15 @@ const WebsiteConfigScreen = ({navigation}) => {
     wifiSSID: '',
     password: '',
   });
+  const [contentList, setContentList] = useState([]);
   const [step, setStep] = useState(1);
 
-  const handlePreview = () => {
-    // navigation.navigate('Preview');
+  const handleCreateLocation = () => {
+    setIsModalVisible(true);
+    setIsWarningModal(true);
+    setWarningTitle(
+      `Bạn có chắc muốn bỏ qua quá trình\ncấu hình website không?`,
+    );
   };
 
   const handleFindWifi = () => {
@@ -144,39 +150,43 @@ const WebsiteConfigScreen = ({navigation}) => {
       return (
         <View style={{paddingHorizontal: 15}}>
           <CommonTextInput
-            title={contentType.type === 'wifi' ? 'Tên wifi' : 'Tiêu đề'}
+            title={contentType?.type === 'wifi' ? 'Tên wifi' : 'Tiêu đề'}
             value={contentData?.title}
             onChangeText={text => setContentData({...contentData, title: text})}
             rightIcon={icCloseGrey}
             onRightPress={() => setContentData({...contentData, title: ''})}
           />
-          <CommonTextInput
-            onPress={handleFindWifi}
-            title={
-              contentType.type === 'text'
-                ? 'Mô tả'
-                : contentType.type === 'link'
-                ? 'Đường dẫn'
-                : contentType.type === 'rating'
-                ? 'Đánh giá'
-                : 'Mạng wifi'
-            }
-            placeholder={
-              contentType.type === 'wifi' && !contentData?.wifiSSID
-                ? `Tìm`
-                : `Nhập`
-            }
-            value={contentData?.description}
-            onChangeText={text =>
-              setContentData({...contentData, description: text})
-            }
-            rightIcon={icCloseGrey}
-            leftIcon={icSearchGrey}
-            onRightPress={() =>
-              setContentData({...contentData, description: ''})
-            }
-          />
-          {contentType.type === 'wifi' && (
+          {contentType?.type !== 'text' && (
+            <CommonTextInput
+              onPress={
+                contentType?.type === 'wifi' ? handleFindWifi : undefined
+              }
+              title={
+                contentType?.type === 'text'
+                  ? 'Mô tả'
+                  : contentType?.type === 'link'
+                  ? 'Đường dẫn'
+                  : contentType?.type === 'rating'
+                  ? 'Đánh giá'
+                  : 'Mạng wifi'
+              }
+              placeholder={
+                contentType?.type === 'wifi' && !contentData?.wifiSSID
+                  ? `Tìm`
+                  : `Nhập`
+              }
+              value={contentData?.description}
+              onChangeText={text =>
+                setContentData({...contentData, description: text})
+              }
+              rightIcon={icCloseGrey}
+              leftIcon={contentType?.type === 'wifi' ? icSearchGrey : undefined}
+              onRightPress={() =>
+                setContentData({...contentData, description: ''})
+              }
+            />
+          )}
+          {contentType?.type === 'wifi' && (
             <CommonTextInput
               title="Mật khẩu wifi"
               value={contentData?.password}
@@ -222,27 +232,61 @@ const WebsiteConfigScreen = ({navigation}) => {
               }
             }}>
             <Text style={styles.cancelBtnText}>
-              {step === 2 ? `Đóng` : `Hủy`}
+              {step === 2 ? `Đóng` : isWarningModal ? `Đồng ý` : `Hủy`}
             </Text>
           </TouchableOpacity>
         )}
-        <TouchableOpacity
-          onPress={() => {
-            setStep(2);
-          }}
-          style={{flex: 1, alignItems: 'center'}}>
-          <LinearGradient
-            colors={
-              isWarningModal ? ['#B22626', '#770303'] : ['#162ED0', '#071DAF']
+        {!isWarningModal && (
+          <TouchableOpacity
+            disabled={
+              (step === 1 && !contentType?.type) ||
+              (step === 2 && !contentData?.title)
             }
-            start={{x: 0, y: 0}}
-            end={{x: 1, y: 0}}
-            style={styles.doneBtnGradient}>
-            <Text style={styles.doneBtnText}>
-              {isWarningModal ? 'Hủy Bỏ' : step === 2 ? 'Thêm' : 'Tiếp Tục'}
-            </Text>
-          </LinearGradient>
-        </TouchableOpacity>
+            onPress={() => {
+              if (step === 2) {
+                setContentList([
+                  ...contentList,
+                  {
+                    id: contentList.length + 1,
+                    type: contentType.type,
+                    label: contentType.label,
+                    value: contentData.title,
+                    icon: contentType.icon,
+                  },
+                ]);
+                setContentData({
+                  title: '',
+                  description: '',
+                  wifiName: '',
+                  wifiSSID: '',
+                  password: '',
+                });
+                setContentType(null);
+                setStep(1);
+                setIsModalVisible(false);
+                return;
+              }
+              setStep(2);
+            }}
+            style={{flex: 1, alignItems: 'center'}}>
+            <LinearGradient
+              colors={
+                isWarningModal
+                  ? ['#B22626', '#770303']
+                  : (step === 1 && !contentType?.type) ||
+                    (step === 2 && !contentData?.title)
+                  ? ['#A9B2C9', '#7E89AA']
+                  : ['#162ED0', '#071DAF']
+              }
+              start={{x: 0, y: 0}}
+              end={{x: 1, y: 0}}
+              style={styles.doneBtnGradient}>
+              <Text style={styles.doneBtnText}>
+                {isWarningModal ? 'Hủy Bỏ' : step === 2 ? 'Thêm' : 'Tiếp Tục'}
+              </Text>
+            </LinearGradient>
+          </TouchableOpacity>
+        )}
       </View>
     );
   };
@@ -259,9 +303,9 @@ const WebsiteConfigScreen = ({navigation}) => {
       {/* Header */}
       <CommonHeader
         title="Cấu Hình Website"
-        onBack={() => navigation.goBack()}
+        onBack={handleCreateLocation}
         rightContent={
-          <TouchableOpacity onPress={() => navigation.goBack()}>
+          <TouchableOpacity onPress={handleCreateLocation}>
             <Text style={styles.skipText}>BỎ QUA</Text>
           </TouchableOpacity>
         }
@@ -290,16 +334,20 @@ const WebsiteConfigScreen = ({navigation}) => {
         <View style={{flex: 1}}>
           <View style={styles.menuContainer}>
             <View style={[styles.menuItem, {flex: 1}]}>
-              <Text style={[styles.menuText, {paddingLeft: 15}]}>NỘI DUNG</Text>
+              <Text
+                style={[
+                  styles.menuText,
+                  {
+                    paddingLeft: 10,
+                    fontWeight: 'bold',
+                    color: '#009459',
+                    fontSize: 14,
+                  },
+                ]}>
+                NỘI DUNG
+              </Text>
             </View>
             <View style={{flexDirection: 'row', alignItems: 'center'}}>
-              <TouchableOpacity onPress={handlePreview} style={styles.menuItem}>
-                <Image
-                  source={icMonitorGrey}
-                  style={{width: 20, height: 20, marginRight: 8}}
-                />
-                <Text style={styles.menuText}>XEM TRƯỚC</Text>
-              </TouchableOpacity>
               <TouchableOpacity onPress={handleAdd} style={styles.menuItem}>
                 <Image
                   source={icAddGrey}
@@ -313,13 +361,12 @@ const WebsiteConfigScreen = ({navigation}) => {
           <ScrollView
             style={styles.contentList}
             contentContainerStyle={{paddingBottom: 24}}>
-            {CONTENT_ITEMS.map((item, idx) => (
+            {contentList.map((item, idx) => (
               <View key={item.id} style={styles.card}>
                 <View style={styles.dragHandle}>
                   <Image source={ic6DotsGrey} style={styles.iconText} />
                 </View>
                 <View style={styles.iconBox}>
-                  {/* Replace with image if available */}
                   <Image source={item.icon} style={styles.iconText} />
                 </View>
                 <View style={{flex: 1}}>
@@ -342,6 +389,9 @@ const WebsiteConfigScreen = ({navigation}) => {
               onPress={() => {
                 setIsWarningModal(true);
                 setIsModalVisible(true);
+                setWarningTitle(
+                  `Bạn có chắc muốn hủy bỏ quá trình\nthêm mới vị trí không?`,
+                );
               }}>
               <Text style={styles.cancelBtnText}>Hủy</Text>
             </TouchableOpacity>
@@ -357,7 +407,7 @@ const WebsiteConfigScreen = ({navigation}) => {
           </View>
         </View>
       ) : (
-        <UIConfig />
+        <UIConfig contentList={contentList} />
       )}
       <CommonModal
         visible={isModalVisible}
@@ -365,8 +415,6 @@ const WebsiteConfigScreen = ({navigation}) => {
           setIsModalVisible(false);
           setIsWarningModal(false);
           if (step === 2) {
-            setStep(1);
-            setContentType(null);
             setContentData({
               title: '',
               description: '',
@@ -374,11 +422,13 @@ const WebsiteConfigScreen = ({navigation}) => {
               wifiSSID: '',
               password: '',
             });
+            setContentType(null);
+            setStep(1);
           }
         }}
         header={step === 1 ? `Thêm Nội Dung` : `Thêm ${contentType?.label}`}
         isWarning={isWarningModal}
-        warningTitle={`Bạn có chắc muốn hủy bỏ quá trình\nthêm mới vị trí không?`}
+        warningTitle={warningTitle}
         content={renderModalContent()}
         bottomContent={renderModalButton()}
       />
@@ -437,9 +487,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   menuText: {
-    fontSize: 15,
-    fontWeight: '600',
     color: '#38434E',
+    fontWeight: '500',
+    fontSize: 14,
   },
   menuTextActive: {
     color: '#009459',
@@ -509,9 +559,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingBottom: 24,
-    paddingTop: 8,
+    paddingHorizontal: 15,
+    paddingBottom: 35,
     backgroundColor: 'transparent',
   },
   cancelBtn: {

@@ -1,5 +1,5 @@
 /* eslint-disable react-native/no-inline-styles */
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -17,9 +17,11 @@ import {convertErrorMessage, validateEmail} from '../../utils/func';
 import {commonStyles} from '../../utils/styles';
 import {useAuth} from '../../store/hooks/useAuth';
 import CommonLoading from '../../components/commonLoading';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {LOCAL_STORAGE_KEY} from '../../utils/const';
 
 const LoginScreen = ({navigation}) => {
-  const {user, isAuthenticated, isLoading, error, login, logout} = useAuth();
+  const {login} = useAuth();
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -30,39 +32,74 @@ const LoginScreen = ({navigation}) => {
     message: '',
   });
   const validateLogin =
-    !email.trim() ||
-    !password.trim() ||
-    email.length < 7 ||
-    password.length < 8;
+    !email?.trim() ||
+    !password?.trim() ||
+    email?.length < 7 ||
+    password?.length < 8;
   const [focusedInput, setFocusedInput] = useState('');
+
+  useEffect(() => {
+    getLoginInfor();
+  }, []);
+
+  const getLoginInfor = async () => {
+    const loginInfor = await AsyncStorage.getItem(
+      LOCAL_STORAGE_KEY.LOGIN_INFOR,
+    );
+    const loginInforData = JSON.parse(loginInfor);
+    console.log('logged in before', loginInforData);
+    if (
+      loginInforData.username.length > 0 &&
+      loginInforData.password.length > 0
+    ) {
+      setLoading(true);
+      setEmail(loginInforData.username);
+      setPassword(loginInforData.password);
+      setTimeout(() => {
+        handleLogin(loginInforData.username, loginInforData.password);
+      }, 1000);
+    }
+  };
 
   const showError = (errorStatus, message) => {
     setDialogMessage({type: errorStatus, message});
     setDialogVisible(true);
   };
 
-  const handleLogin = async () => {
-    if (!validateEmail(email)) {
+  const handleLogin = async (_email, _password) => {
+    let loginEmail = _email || email;
+    let loginPassword = _password || password;
+    console.log('handleLogin', loginEmail, loginPassword);
+    if (!validateEmail(loginEmail)) {
       showError(false, 'Email không hợp lệ');
       return;
     }
-    if (!email.trim() || !password.trim()) {
+    if (!loginEmail.trim() || !loginPassword.trim()) {
       showError(false, 'Vui lòng nhập đầy đủ thông tin');
       return;
     }
     setLoading(true);
     await login({
-      username: email,
-      password,
-    }).then(res => {
+      username: loginEmail,
+      password: loginPassword,
+    }).then(async res => {
       console.log('login res', res);
       setLoading(false);
       if (res.success) {
-        setTimeout(() => {
-          navigation.replace('Main');
-        }, 500);
+        try {
+          email.length > 0 &&
+            (await AsyncStorage.setItem(
+              LOCAL_STORAGE_KEY.LOGIN_INFOR,
+              JSON.stringify({username: email, password}),
+            ));
+          setTimeout(() => {
+            navigation.replace('Main');
+          }, 500);
+        } catch (error) {
+          console.log('error while configuration login infor', error);
+        }
       } else {
-        console.log('Else error');
+        console.log('Else error', res);
         setTimeout(() => {
           showError(false, convertErrorMessage(res.error));
         }, 500);
@@ -153,7 +190,7 @@ const LoginScreen = ({navigation}) => {
               styles.loginButton,
               validateLogin && {backgroundColor: '#C9CCDC', opacity: 0.5},
             ]}
-            onPress={handleLogin}
+            onPress={() => handleLogin()}
             disabled={validateLogin || loading}>
             <Text style={styles.loginButtonText}>
               {loading ? 'Đang đăng nhập...' : 'Đăng Nhập'}
@@ -240,6 +277,7 @@ const styles = StyleSheet.create({
     padding: 12,
     fontSize: 16,
     backgroundColor: '#fff',
+    color: 'black',
   },
   showButton: {
     position: 'absolute',

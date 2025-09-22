@@ -150,6 +150,7 @@ const styles = StyleSheet.create({
   optionLabel: {
     fontSize: 14,
     fontWeight: '400',
+    color: 'black',
   },
 });
 

@@ -24,6 +24,7 @@ const CommonTextInput = ({
   inputProps,
   isPassword = false,
   onPress,
+  maxLength = 100,
 }) => {
   const [isShowPassword, setIsShowPassword] = useState(false);
   return (
@@ -39,19 +40,21 @@ const CommonTextInput = ({
         style={styles.inputWrapper}
         onPress={onPress}>
         {leftIcon && <Image source={leftIcon} style={styles.leftIcon} />}
-        <TextInput
-          style={styles.input}
-          pointerEvents={onPress ? 'none' : 'auto'}
-          value={value}
-          onChangeText={onChangeText}
-          placeholder={placeholder}
-          secureTextEntry={isPassword && !isShowPassword}
-          placeholderTextColor="#A0A0A0"
-          onFocus={onFocus}
-          onBlur={onBlur}
-          {...inputProps}
-        />
-        {rightIcon && (value?.length > 0 || isPassword) ? (
+        <View style={{flex: 1}} pointerEvents={onPress ? 'none' : 'auto'}>
+          <TextInput
+            style={styles.input}
+            value={value}
+            onChangeText={onChangeText}
+            placeholder={placeholder}
+            secureTextEntry={isPassword && !isShowPassword}
+            placeholderTextColor="#A0A0A0"
+            onFocus={onFocus}
+            onBlur={onBlur}
+            maxLength={maxLength}
+            {...inputProps}
+          />
+        </View>
+        {rightIcon || value?.length > 0 || isPassword ? (
           <TouchableOpacity
             style={styles.rightIconBtn}
             onPress={() => {

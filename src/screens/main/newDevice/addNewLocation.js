@@ -23,14 +23,19 @@ import {
   icTickBlue,
   icWifi,
 } from '../../../images';
+import {useUser} from '../../../store/hooks/useUser';
 
-const AddNewTagScreen = ({navigation}) => {
+const AddNewLocationScreen = ({navigation}) => {
+  const {createLocation} = useUser();
   const [locationName, setLocationName] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [modalWifiVisible, setModalWifiVisible] = useState(false);
   const [listWifi, setListWifi] = useState([]);
-  const [selectedWifi, setSelectedWifi] = useState(null);
-  const passwordInputRef = useRef(null);
+  const [selectedWifi, setSelectedWifi] = useState({
+    wifiName: '',
+    SSID: '',
+    password: '',
+  });
   useEffect(() => {
     requestPermissions();
     if (Platform.OS === 'ios') {
@@ -45,6 +50,7 @@ const AddNewTagScreen = ({navigation}) => {
       setSelectedWifi({SSID: currentSSID, password: ''});
     } catch (error) {
       console.log('Cannot get current SSID!', error);
+      __DEV__ && setSelectedWifi({SSID: 'abc test', password: '12345678'});
     }
     return;
   };
@@ -83,10 +89,16 @@ const AddNewTagScreen = ({navigation}) => {
     }
   }
 
-  const handleContinue = () => {
-    navigation.navigate('WebsiteConfig', {
-      locationName,
-      wifi: selectedWifi,
+  const handleContinue = async () => {
+    await createLocation({name: locationName}).then(res => {
+      console.log('createLocation', res);
+      if (res.success) {
+        navigation.navigate('LocationDetail', {
+          locationData: res.data,
+          locationName,
+          // wifi: selectedWifi,
+        });
+      }
     });
   };
 
@@ -162,12 +174,11 @@ const AddNewTagScreen = ({navigation}) => {
           />
         </View>
         {/* Cấu hình WiFi */}
-        <View style={styles.card}>
+        {/* <View style={styles.card}>
           <Text
             style={[styles.sectionLabel, {paddingLeft: 16, paddingTop: 16}]}>
             CẤU HÌNH WIFI
           </Text>
-          {/* Mạng WiFi */}
           <View
             style={[
               styles.inputGroup,
@@ -177,7 +188,33 @@ const AddNewTagScreen = ({navigation}) => {
                 paddingHorizontal: 16,
               },
             ]}>
-            <Text style={styles.inputLabel}>MẠNG WIFI</Text>
+            <Text style={styles.inputLabel}>TÊN SẢN PHẨM</Text>
+            <View style={styles.inputWithIcon}>
+              <TextInput
+                style={styles.input}
+                placeholder="Nhập"
+                placeholderTextColor="#A0A0A0"
+                value={selectedWifi?.wifiName}
+                onChangeText={txt => {
+                  setSelectedWifi(prev => ({
+                    ...prev,
+                    wifiName: txt,
+                  }));
+                }}
+                secureTextEntry={false}
+              />
+            </View>
+          </View>
+          <View
+            style={[
+              styles.inputGroup,
+              {
+                borderBottomWidth: 1,
+                borderBottomColor: '#E2E7FB',
+                paddingHorizontal: 16,
+              },
+            ]}>
+            <Text style={styles.inputLabel}>MẠNG WIFI (SSID)</Text>
             <TouchableOpacity
               onPress={openWifiModal}
               disabled={Platform.OS === 'ios'}
@@ -203,12 +240,10 @@ const AddNewTagScreen = ({navigation}) => {
               )}
             </TouchableOpacity>
           </View>
-          {/* Mật khẩu WiFi */}
           <View style={[styles.inputGroup, {paddingHorizontal: 16}]}>
             <Text style={styles.inputLabel}>MẬT KHẨU WIFI</Text>
             <View style={styles.inputWithIcon}>
               <TextInput
-                ref={passwordInputRef}
                 style={styles.input}
                 placeholder="Nhập"
                 placeholderTextColor="#A0A0A0"
@@ -228,7 +263,7 @@ const AddNewTagScreen = ({navigation}) => {
               </TouchableOpacity>
             </View>
           </View>
-        </View>
+        </View> */}
       </ScrollView>
       {/* Bottom Buttons */}
       <View style={styles.bottomButtonsContainer}>
@@ -237,16 +272,32 @@ const AddNewTagScreen = ({navigation}) => {
           onPress={() => navigation.goBack()}>
           <Text style={styles.cancelBtnText}>Hủy</Text>
         </TouchableOpacity>
-        <TouchableOpacity
+        {/* <TouchableOpacity
           disabled={
-            !(locationName.length > 0 && selectedWifi?.password?.length > 0)
+            !(
+              locationName.length > 0 &&
+              selectedWifi?.password?.length > 0 &&
+              selectedWifi.wifiName?.length > 0
+            )
           }
           style={[
             styles.continueBtn,
             locationName.length > 0 &&
-              selectedWifi?.password?.length > 0 && {
+              selectedWifi?.password?.length > 0 &&
+              selectedWifi.wifiName?.length > 0 && {
                 backgroundColor: '#162ED0',
               },
+          ]}
+          onPress={handleContinue}>
+          <Text style={styles.continueBtnText}>Tiếp Tục</Text>
+        </TouchableOpacity> */}
+        <TouchableOpacity
+          disabled={!locationName.length > 0}
+          style={[
+            styles.continueBtn,
+            locationName.length > 0 && {
+              backgroundColor: '#162ED0',
+            },
           ]}
           onPress={handleContinue}>
           <Text style={styles.continueBtnText}>Tiếp Tục</Text>
@@ -327,7 +378,7 @@ const styles = StyleSheet.create({
   input: {
     borderWidth: 0,
     borderRadius: 12,
-    padding: 12,
+    paddingVertical: 12,
     fontSize: 16,
     color: '#222',
     marginBottom: 0,
@@ -399,4 +450,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default AddNewTagScreen;
+export default AddNewLocationScreen;

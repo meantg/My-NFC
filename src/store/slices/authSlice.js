@@ -20,6 +20,7 @@ const initialState = {
 
 export const verifyOTPAsync = createAsyncThunk(
   'auth/verifyOTP',
+  // @ts-ignore
   async ({otp, email}, {rejectWithValue}) => {
     try {
       const response = await verifyOTP({otp, email});
@@ -57,8 +58,10 @@ export const resetOTPAsync = createAsyncThunk(
 // Async thunk for login
 export const loginUser = createAsyncThunk(
   'auth/loginUser',
+  // @ts-ignore
   async ({username, password}, {rejectWithValue}) => {
     try {
+      // @ts-ignore
       const response = await loginWithUsernamePassword({
         username,
         password,
@@ -86,6 +89,7 @@ export const loginUser = createAsyncThunk(
 // Async thunk for register
 export const registerUserAsync = createAsyncThunk(
   'auth/registerUser',
+  // @ts-ignore
   async ({userData}, {rejectWithValue}) => {
     try {
       const response = await registerUser({userData});
@@ -126,6 +130,7 @@ export const logoutUserAsync = createAsyncThunk(
 // Async thunk for getting user profile
 export const fetchUserProfile = createAsyncThunk(
   'auth/fetchUserProfile',
+  // @ts-ignore
   async ({token}, {rejectWithValue}) => {
     try {
       const response = await getUserProfile({token});
@@ -208,6 +213,7 @@ const authSlice = createSlice({
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.isLoading = false;
+        // @ts-ignore
         state.error = action.payload?.message || 'Login failed';
       })
       // Logout cases
@@ -226,6 +232,7 @@ const authSlice = createSlice({
         state.user = null;
         state.token = null;
         state.isAuthenticated = false;
+        // @ts-ignore
         state.error = action.payload?.message || 'Logout failed';
       })
       // Profile cases
@@ -240,6 +247,7 @@ const authSlice = createSlice({
       })
       .addCase(fetchUserProfile.rejected, (state, action) => {
         state.isLoading = false;
+        // @ts-ignore
         state.error = action.payload?.message || 'Failed to fetch profile';
       });
   },

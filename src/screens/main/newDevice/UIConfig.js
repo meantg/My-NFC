@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+/* eslint-disable react-native/no-inline-styles */
+import React, {useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -6,6 +7,7 @@ import {
   StyleSheet,
   Switch,
   Image,
+  ScrollView,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import CommonHeader from '../../../components/commonHeader';
@@ -21,26 +23,25 @@ import {
   imgThemeWinter,
 } from '../../../images';
 import CommonModal from '../../../components/commonModal';
-import ColorPicker, { Panel1, HueSlider } from 'reanimated-color-picker';
-import { ScrollView } from 'react-native-gesture-handler';
-import { hexToRgb } from '../../../utils/func';
-import { useNavigation } from '@react-navigation/native';
+import ColorPicker, {Panel1, HueSlider} from 'reanimated-color-picker';
+import {hexToRgb} from '../../../utils/func';
+import {useNavigation} from '@react-navigation/native';
 
 const themeOptions = [
-  { label: 'Mùa xuân', value: 'spring', img: imgThemeSpring },
-  { label: 'Mùa hè', value: 'summer', img: imgThemeSummer },
-  { label: 'Mùa thu', value: 'autumn', img: imgThemeAutumn },
-  { label: 'Mùa đông', value: 'winter', img: imgThemeWinter },
+  {label: 'Mùa xuân', value: 'spring', img: imgThemeSpring},
+  {label: 'Mùa hè', value: 'summer', img: imgThemeSummer},
+  {label: 'Mùa thu', value: 'autumn', img: imgThemeAutumn},
+  {label: 'Mùa đông', value: 'winter', img: imgThemeWinter},
   // {label: '4 mùa', value: '4seasons'},
 ];
 
 const btnStyles = [
-  { label: 'Bo tròn', value: 'all-rounded', style: { borderRadius: 45 } },
-  { label: 'Bo ít', value: 'rounded', style: { borderRadius: 10 } },
-  { label: 'Vuông', value: 'square', style: { borderRadius: 0 } },
+  {label: 'Bo tròn', value: 'all-rounded', style: {borderRadius: 45}},
+  {label: 'Bo ít', value: 'rounded', style: {borderRadius: 10}},
+  {label: 'Vuông', value: 'square', style: {borderRadius: 0}},
 ];
 
-const UIConfig = ({ }) => {
+const UIConfig = ({contentList}) => {
   const navigation = useNavigation();
   const [useTemplate, setUseTemplate] = useState(true);
   const [contentStart, setContentStart] = useState(0.5);
@@ -60,32 +61,37 @@ const UIConfig = ({ }) => {
   });
 
   useEffect(() => {
-    setContentData(prev => ({ ...prev, theme: themeOptions[0] }));
+    setContentData(prev => ({...prev, theme: themeOptions[0]}));
   }, []);
 
   useEffect(() => {
+    console.log('contentList', contentList);
     console.log('contentData', contentData);
   }, [contentData]);
 
-  const onSelectColor = ({ hex, rgb }) => {
+  const onSelectColor = ({hex, rgb}) => {
     // do something with the selected color.
     try {
       if (contentType === 'txtColor') {
-        setContentData(prev => ({ ...prev, txtColor: hex }));
+        setContentData(prev => ({...prev, txtColor: hex}));
       } else if (contentType === 'cardColor') {
-        setContentData(prev => ({ ...prev, cardColor: hex }));
+        setContentData(prev => ({...prev, cardColor: hex}));
       } else if (contentType === 'borderColor') {
-        setContentData(prev => ({ ...prev, borderColor: hex }));
+        setContentData(prev => ({...prev, borderColor: hex}));
       } else if (contentType === 'bgColor') {
-        setContentData(prev => ({ ...prev, bgColor: hex }));
+        setContentData(prev => ({...prev, bgColor: hex}));
       }
     } catch (error) {
       console.log('error', error);
     }
   };
 
-  const handlePreviewUI = () => {
-    navigation.navigate('PreviewUI', { config: contentData });
+  const handlePreviewUI = (isDone = false) => {
+    navigation.navigate('PreviewUI', {
+      config: contentData,
+      contentList,
+      isDone,
+    });
   };
 
   const renderModalContent = () => {
@@ -97,22 +103,22 @@ const UIConfig = ({ }) => {
       contentType === 'bgColor'
     ) {
       return (
-        <ScrollView style={{ paddingHorizontal: 5 }}>
+        <ScrollView style={{paddingHorizontal: 5}}>
           <ColorPicker
-            style={{ width: '95%', alignSelf: 'center', marginTop: 20 }}
+            style={{width: '95%', alignSelf: 'center', marginTop: 20}}
             value={contentData[contentType]}
             onCompleteJS={onSelectColor}>
             {/* <Preview key={'preview'} /> */}
-            <Panel1 style={{ borderRadius: 8, marginBottom: 15 }} />
+            <Panel1 style={{borderRadius: 8, marginBottom: 15}} />
             <HueSlider
               thumbSize={22}
               sliderThickness={12}
-              style={{ borderRadius: 45, marginBottom: 15 }}
+              style={{borderRadius: 45, marginBottom: 15}}
             />
-            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <View style={{ flex: 2 }}>
+            <View style={{flexDirection: 'row', alignItems: 'center'}}>
+              <View style={{flex: 2}}>
                 <Text
-                  style={{ fontSize: 12, color: '#38434E', fontWeight: '800' }}>
+                  style={{fontSize: 12, color: '#38434E', fontWeight: '800'}}>
                   Hex
                 </Text>
                 <View
@@ -135,9 +141,9 @@ const UIConfig = ({ }) => {
                   </Text>
                 </View>
               </View>
-              <View style={{ flex: 1 }}>
+              <View style={{flex: 1}}>
                 <Text
-                  style={{ fontSize: 12, color: '#38434E', fontWeight: '800' }}>
+                  style={{fontSize: 12, color: '#38434E', fontWeight: '800'}}>
                   R
                 </Text>
                 <View
@@ -160,9 +166,9 @@ const UIConfig = ({ }) => {
                   </Text>
                 </View>
               </View>
-              <View style={{ flex: 1 }}>
+              <View style={{flex: 1}}>
                 <Text
-                  style={{ fontSize: 12, color: '#38434E', fontWeight: '800' }}>
+                  style={{fontSize: 12, color: '#38434E', fontWeight: '800'}}>
                   G
                 </Text>
                 <View
@@ -185,9 +191,9 @@ const UIConfig = ({ }) => {
                   </Text>
                 </View>
               </View>
-              <View style={{ flex: 1 }}>
+              <View style={{flex: 1}}>
                 <Text
-                  style={{ fontSize: 12, color: '#38434E', fontWeight: '800' }}>
+                  style={{fontSize: 12, color: '#38434E', fontWeight: '800'}}>
                   B
                 </Text>
                 <View
@@ -222,7 +228,7 @@ const UIConfig = ({ }) => {
             <TouchableOpacity
               key={idx}
               onPress={() =>
-                setContentData(prev => ({ ...prev, btnStyle: item }))
+                setContentData(prev => ({...prev, btnStyle: item}))
               }
               style={[
                 {
@@ -238,15 +244,15 @@ const UIConfig = ({ }) => {
                     ? ['#DEE8FF', '#F4F9FF']
                     : ['#fff', '#fff']
                 }
-                start={{ x: 0, y: 0 }}
-                end={{ x: 0.3, y: 0 }}
+                start={{x: 0, y: 0}}
+                end={{x: 0.3, y: 0}}
                 style={{
                   flex: 1,
                   padding: 15,
                   flexDirection: 'row',
                   alignItems: 'center',
                 }}>
-                <View style={{ flex: 1, alignItems: 'flex-start' }}>
+                <View style={{flex: 1, alignItems: 'flex-start'}}>
                   <View
                     style={[
                       styles.buttonStyleBtn,
@@ -262,14 +268,20 @@ const UIConfig = ({ }) => {
                     <Text
                       style={[
                         styles.cardLabel,
-                        { fontWeight: '400', color: '#38434E', fontSize: 12, fontWeight: '800', textAlign: 'center' },
+                        {
+                          fontWeight: '400',
+                          color: '#38434E',
+                          fontSize: 12,
+                          fontWeight: '800',
+                          textAlign: 'center',
+                        },
                       ]}>
                       {item.label}
                     </Text>
                   </View>
                 </View>
                 {item.value === contentData?.btnStyle?.value && (
-                  <Image source={icTickBlue} style={{ width: 16, height: 16 }} />
+                  <Image source={icTickBlue} style={{width: 16, height: 16}} />
                 )}
               </LinearGradient>
             </TouchableOpacity>
@@ -282,7 +294,7 @@ const UIConfig = ({ }) => {
         {themeOptions.map((item, idx) => (
           <TouchableOpacity
             key={idx}
-            onPress={() => setContentData(prev => ({ ...prev, theme: item }))}
+            onPress={() => setContentData(prev => ({...prev, theme: item}))}
             style={[
               {
                 borderBottomWidth: 1,
@@ -297,8 +309,8 @@ const UIConfig = ({ }) => {
                   ? ['#DEE8FF', '#F4F9FF']
                   : ['#fff', '#fff']
               }
-              start={{ x: 0, y: 0 }}
-              end={{ x: 0.3, y: 0 }}
+              start={{x: 0, y: 0}}
+              end={{x: 0.3, y: 0}}
               style={{
                 flex: 1,
                 padding: 15,
@@ -314,20 +326,20 @@ const UIConfig = ({ }) => {
                 <Text
                   style={[
                     styles.cardLabel,
-                    { fontWeight: '400', color: '#38434E' },
+                    {fontWeight: '400', color: '#38434E'},
                   ]}>
                   {item.label}
                 </Text>
                 <Image
                   source={item.img}
-                  style={{ width: 40, height: 20 }}
+                  style={{width: 40, height: 20}}
                   resizeMode="center"
                 />
               </View>
               {item.value === contentData?.theme?.value && (
                 <Image
                   source={icTickBlue}
-                  style={{ width: 16, height: 16, marginLeft: 15 }}
+                  style={{width: 16, height: 16, marginLeft: 15}}
                 />
               )}
             </LinearGradient>
@@ -339,16 +351,16 @@ const UIConfig = ({ }) => {
 
   const renderModalButton = () => {
     return (
-      <View style={{ paddingBottom: 20, top: -15, paddingHorizontal: 20 }}>
+      <View style={{paddingBottom: 20, top: -15, paddingHorizontal: 20}}>
         <TouchableOpacity
           onPress={() => {
             setIsModalVisible(false);
           }}
-          style={{ flex: 1, alignItems: 'center' }}>
+          style={{flex: 1, alignItems: 'center'}}>
           <LinearGradient
             colors={['#162ED0', '#071DAF']}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
+            start={{x: 0, y: 0}}
+            end={{x: 1, y: 0}}
             style={styles.doneBtnGradient}>
             <Text style={styles.doneBtnText}>Lưu</Text>
           </LinearGradient>
@@ -364,7 +376,7 @@ const UIConfig = ({ }) => {
         style={StyleSheet.absoluteFill}
       />
       {/* <CommonHeader title="Giao Diện" onBack={() => navigation.goBack()} /> */}
-      <ScrollView contentContainerStyle={{padding: 16, paddingBottom: 32}}>
+      <ScrollView contentContainerStyle={{padding: 10, paddingBottom: 32}}>
         {/* Top Row */}
         <View
           style={{
@@ -376,7 +388,7 @@ const UIConfig = ({ }) => {
           <View style={{flex: 1}} />
           <TouchableOpacity
             style={{flexDirection: 'row', alignItems: 'center'}}
-            onPress={handlePreviewUI}>
+            onPress={() => handlePreviewUI()}>
             <Image
               source={icMonitorGrey}
               style={{width: 16, height: 16, marginRight: 5}}
@@ -563,8 +575,8 @@ const UIConfig = ({ }) => {
           onPress={() => navigation.goBack()}>
           <Text style={styles.cancelBtnText}>Hủy</Text>
         </TouchableOpacity>
-        <TouchableOpacity 
-          onPress={() => navigation.navigate('PreviewUI')}
+        <TouchableOpacity
+          onPress={() => handlePreviewUI(true)}
           style={styles.doneBtn}>
           <LinearGradient
             colors={['#162ED0', '#071DAF']}
@@ -599,7 +611,7 @@ const UIConfig = ({ }) => {
         content={renderModalContent()}
         bottomContent={renderModalButton()}
       />
-    </View >
+    </View>
   );
 };
 
@@ -654,7 +666,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     marginBottom: 16,
     shadowColor: '#091FB41A',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.08,
     shadowRadius: 10,
     elevation: 2,

@@ -171,8 +171,12 @@ export async function removePasswordProtection(pass = '1234') {
     console.log('🧽 Clear PACK Response:', packResp);
 
     console.log('✅ Protection removed successfully');
+    await NfcManager.cancelTechnologyRequest();
+    return true;
   } catch (err) {
     console.warn('❌ Failed to remove password:', err);
+    await NfcManager.cancelTechnologyRequest();
+    return false;
   } finally {
     await NfcManager.cancelTechnologyRequest();
   }
@@ -239,9 +243,10 @@ function parseRecord(record) {
   return {type: 'Unknown', raw: payload.toString('utf8')};
 }
 
-export async function readTag() {
+export async function readTag(func) {
   try {
     await NfcManager.requestTechnology(NfcTech.NfcA);
+    func && func();
     const tag = await NfcManager.getTag();
 
     const id = tag.id?.toUpperCase();
@@ -288,7 +293,7 @@ export async function readTag() {
       writable: tag.isWritable !== false,
       records, // All parsed records
     };
-
+    await NfcManager.cancelTechnologyRequest();
     return tagInfo;
   } catch (e) {
     console.warn('Read error', e);
@@ -298,7 +303,13 @@ export async function readTag() {
   }
 }
 
-export async function writeNdefMessageWithAuth(pass = '1234') {
+export async function writeNdefMessageWithAuth({
+  type,
+  data = {cardPassword: '1234'},
+}) {
+  console.log('type', type);
+  console.log('data', JSON.stringify(data, null, 2));
+  const pass = data.cardPassword;
   const password = passwordStringToHexBytes(pass);
 
   await NfcManager.requestTechnology(NfcTech.NfcA);
@@ -364,7 +375,7 @@ export async function writeNdefMessageWithAuth(pass = '1234') {
 
     // // Step 3: Use standard NDEF writing
     console.log('📝 Writing NDEF message using standard method...');
-    await writeMultipleRecordsWithNfcA().then(res => {
+    await writeMultipleRecordsWithNfcA(type, data).then(res => {
       if (!res) {
         writeStatus = false;
       } else {
@@ -382,26 +393,43 @@ export async function writeNdefMessageWithAuth(pass = '1234') {
   }
 }
 
-function buildMultiRecordNdef() {
-  return Ndef.encodeMessage([
-    Ndef.uriRecord('https://facebook.com/meantgx'),
-    Ndef.uriRecord('mailto:thangvm199@gmail.com?subject=bello&body=Amazing'),
-    Ndef.uriRecord('tel:0379221432'),
-    Ndef.textRecord('Test text'),
-    Ndef.textRecord('Test text'),
-    Ndef.textRecord('Test text'),
-    Ndef.uriRecord('https://youtube.com'),
-    Ndef.uriRecord('https://youtube.com'),
-  ]);
+function buildMultiRecordNdef(type, data) {
+  let lsData = [];
+  switch (type) {
+    case 'WIFI_SIMPLE':
+      lsData.push(
+        Ndef.wifiSimpleRecord({ssid: data.ssid, networkKey: data.password}),
+      );
+      break;
+    case 'URI':
+      lsData.push(Ndef.uriRecord(data.uri));
+      break;
+    case 'TEXT':
+      lsData.push(Ndef.textRecord(data.text));
+      break;
+    default:
+      break;
+  }
+  return Ndef.encodeMessage(lsData);
+  // return Ndef.encodeMessage([
+  //   Ndef.uriRecord('https://facebook.com/meantgx'),
+  //   Ndef.uriRecord('mailto:thangvm199@gmail.com?subject=bello&body=Amazing'),
+  //   Ndef.uriRecord('tel:0379221432'),
+  //   Ndef.textRecord('Test text'),
+  //   Ndef.textRecord('Test text'),
+  //   Ndef.textRecord('Test text'),
+  //   Ndef.uriRecord('https://youtube.com'),
+  //   Ndef.uriRecord('https://youtube.com'),
+  // ]);
 }
 
-export async function writeMultipleRecordsWithNfcA() {
+export async function writeMultipleRecordsWithNfcA(type, data) {
   let writeStatus = false;
   try {
     // await NfcManager.requestTechnology(NfcTech.NfcA);
 
     // 1. Build the NDEF byte array
-    const ndefMessage = buildMultiRecordNdef();
+    const ndefMessage = buildMultiRecordNdef(type, data);
 
     // 2. Wrap in TLV
     const tlv = [0x03, ndefMessage.length, ...ndefMessage, 0xfe];

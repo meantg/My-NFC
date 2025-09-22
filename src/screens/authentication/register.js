@@ -141,7 +141,11 @@ const RegisterScreen = ({navigation}) => {
   };
 
   const handleLogin = () => {
-    navigation.navigate('Login');
+    if (navigation.canGoBack()) {
+      navigation.goBack();
+    } else {
+      navigation.pop(''); // or any safe route
+    }
   };
 
   if (isRegisterSuccess) {

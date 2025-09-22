@@ -6,7 +6,7 @@ export const domainAPI = 'https://apinextap.nexview.vn';
 // Create axios instance
 export const apiClient = axios.create({
   baseURL: `${domainAPI}`, // Using the domain API
-  timeout: 10000,
+  timeout: 100000,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -16,7 +16,7 @@ export const apiClient = axios.create({
 apiClient.interceptors.request.use(
   async config => {
     // Get token from AsyncStorage
-    const token = await AsyncStorage.getItem('authToken');
+    const token = await tokenService.getToken();
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }

@@ -52,7 +52,7 @@ const PlusButton = ({navigation}) => {
             justifyContent: 'center',
             alignItems: 'center',
           }}
-          onPress={() => navigation.navigate('AddNewTag')}>
+          onPress={() => navigation.navigate('AddNewLocation')}>
           <Image source={icAddWhite} style={{width: 32, height: 32}} />
         </TouchableOpacity>
       </LinearGradient>

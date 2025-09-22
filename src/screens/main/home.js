@@ -1,6 +1,7 @@
 /* eslint-disable react-native/no-inline-styles */
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {
+  FlatList,
   Image,
   Platform,
   ScrollView,
@@ -10,14 +11,139 @@ import {
   View,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
-import {icAddGrey, icEditGrey, icWifiGrey, NextapLogo} from '../../images';
+import {
+  icAddGrey,
+  icAddTagGrey,
+  icCreateUIDone,
+  icEditGrey,
+  icLoading,
+  icRadioSelected,
+  icRadioUnSelect,
+  icWarningColor,
+  icWifiGrey,
+  imgScanNFC,
+  NextapLogo,
+} from '../../images';
 import {commonStyles} from '../../utils/styles';
 import {useAuth} from '../../store/hooks/useAuth';
+import {useUser} from '../../store/hooks/useUser';
+import {useIsFocused} from '@react-navigation/native';
+import CommonModal from '../../components/commonModal';
+import CommonButton from '../../components/commonButton';
+import {readTag} from '../../utils/func';
 
 const HomeScreen = ({navigation}) => {
   const {user} = useAuth();
-  const handleOpenDeviceDetail = () => {
-    navigation.navigate('DeviceDetail');
+  const {fetchProducts, adminCreateTag} = useUser();
+  const isFocused = useIsFocused();
+  const [lsLocation, setLsLocation] = useState([]);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [deviceType, setDeviceType] = useState('wifi');
+  const [readTagStep, setReadTagStep] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
+  useEffect(() => {
+    isFocused && getLocationData();
+  }, [isFocused]);
+
+  const handleReadNFC = async () => {
+    setReadTagStep(2);
+    await readTag().then(async res => {
+      setLoading(true);
+      if (res.serialNumber) {
+        await adminCreateTag({
+          type: deviceType,
+          uid: res.serialNumber,
+        }).then(res => {
+          setTimeout(() => {
+            setLoading(false);
+            setError(!res.success);
+          }, 300);
+        });
+      }
+      setReadTagStep(3);
+    });
+  };
+
+  const getLocationData = async () => {
+    await fetchProducts().then(res => {
+      console.log('getLocationData', res);
+      if (res.success) {
+        setLsLocation(res.data);
+      } else {
+        setLsLocation([
+          {
+            _id: '1',
+            name: 'ĐẠI SẢNH',
+            products: [
+              {id: 1, name: 'Wifi A', key: 'abcd1234'},
+              {id: 2, name: 'Cổng chào', key: '123456789'},
+            ],
+          },
+        ]);
+      }
+    });
+  };
+
+  const renderModalContent = () => {
+    return (
+      <View style={{padding: 15}}>
+        <Text style={{fontSize: 16, color: '#38434E'}}>Loại sản phẩm</Text>
+        <View style={{flexDirection: 'row', marginTop: 10}}>
+          <TouchableOpacity
+            onPress={() => setDeviceType('wifi')}
+            style={{flexDirection: 'row', alignItems: 'center', flex: 1}}>
+            <Image
+              source={deviceType === 'wifi' ? icRadioSelected : icRadioUnSelect}
+              style={{width: 20, height: 20}}
+            />
+            <Text style={{fontSize: 16, color: '#38434E', marginLeft: 10}}>
+              Wifi
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => setDeviceType('website')}
+            style={{flexDirection: 'row', alignItems: 'center', flex: 1}}>
+            <Image
+              source={
+                deviceType === 'website' ? icRadioSelected : icRadioUnSelect
+              }
+              style={{width: 20, height: 20}}
+            />
+            <Text style={{fontSize: 16, color: '#38434E', marginLeft: 10}}>
+              Website
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  };
+
+  const renderBottomContent = () => {
+    if (readTagStep == 2) return null;
+    return (
+      <View style={{paddingHorizontal: 15, marginBottom: 40}}>
+        <CommonButton
+          onPress={handleReadNFC}
+          text={
+            readTagStep == 3
+              ? error
+                ? `Thử lại`
+                : 'Tiếp tục thêm thẻ NFC'
+              : 'Thêm'
+          }
+          btnContainerStyle={{flex: 1}}
+        />
+      </View>
+    );
+  };
+
+  const handleAddNewTag = () => {
+    setModalVisible(true);
+  };
+
+  const handleOpenDeviceDetail = (item, isAdd) => {
+    navigation.navigate('LocationDetail', {locationData: item, isAdd});
   };
 
   const renderProduct = () => {
@@ -31,44 +157,54 @@ const HomeScreen = ({navigation}) => {
       ],
     };
     return (
-      <ScrollView
+      <FlatList
+        data={lsLocation}
         style={{
           margin: 12,
           borderRadius: 12,
           overflow: 'hidden',
-        }}>
-        <TouchableOpacity
-          onPress={handleOpenDeviceDetail}
-          style={styles.homeItemContainer}>
-          <LinearGradient
-            colors={['#EAF6FF', '#D0E8FF']}
-            start={{x: 0, y: 0}}
-            end={{x: 1, y: 0}}
-            style={styles.productHeader}>
-            <View style={{flex: 1}}>
-              <Text style={styles.productHeaderTitle}>{section.title}</Text>
-              <Text style={styles.productHeaderSubtitle}>
-                {section.count} sản phẩm
-              </Text>
-            </View>
-            <TouchableOpacity style={styles.productHeaderIconBtn}>
-              <Image source={icEditGrey} style={{width: 24, height: 24}} />
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.productHeaderIconBtn}>
-              <Image source={icAddGrey} style={{width: 24, height: 24}} />
-            </TouchableOpacity>
-          </LinearGradient>
-          {section.products.map((item, idx) => (
-            <View key={item.id} style={styles.productRow}>
-              <Image
-                source={icWifiGrey}
-                style={{width: 24, height: 24, marginRight: 8}}
-              />
-              <Text style={styles.productRowText}>{item.name}</Text>
-            </View>
-          ))}
-        </TouchableOpacity>
-      </ScrollView>
+        }}
+        showsVerticalScrollIndicator={false}
+        ListFooterComponent={<View style={{paddingBottom: 100}} />}
+        renderItem={({item}) => (
+          <TouchableOpacity
+            key={item._id}
+            onPress={() => handleOpenDeviceDetail(item)}
+            style={styles.homeItemContainer}>
+            <LinearGradient
+              colors={['#EAF6FF', '#D0E8FF']}
+              start={{x: 0, y: 0}}
+              end={{x: 1, y: 0}}
+              style={styles.productHeader}>
+              <View style={{flex: 1}}>
+                <Text style={styles.productHeaderTitle}>{item.name}</Text>
+                <Text style={styles.productHeaderSubtitle}>
+                  {item.products?.length} sản phẩm
+                </Text>
+              </View>
+              <TouchableOpacity
+                onPress={() => handleOpenDeviceDetail(item)}
+                style={styles.productHeaderIconBtn}>
+                <Image source={icEditGrey} style={{width: 24, height: 24}} />
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => handleOpenDeviceDetail(item, true)}
+                style={styles.productHeaderIconBtn}>
+                <Image source={icAddGrey} style={{width: 24, height: 24}} />
+              </TouchableOpacity>
+            </LinearGradient>
+            {item.products.map((item, idx) => (
+              <View key={item.id} style={styles.productRow}>
+                <Image
+                  source={icWifiGrey}
+                  style={{width: 24, height: 24, marginRight: 8}}
+                />
+                <Text style={styles.productRowText}>{item.name}</Text>
+              </View>
+            ))}
+          </TouchableOpacity>
+        )}
+      />
     );
   };
 
@@ -80,13 +216,52 @@ const HomeScreen = ({navigation}) => {
         <Text style={styles.headerTitle}>
           🤚 XIN CHÀO {user?.displayName?.toUpperCase()} !
         </Text>
+        <TouchableOpacity
+          style={styles.addNewTagAdmin}
+          onPress={handleAddNewTag}>
+          <Image source={icAddTagGrey} style={{width: 24, height: 24}} />
+        </TouchableOpacity>
       </View>
       {renderProduct()}
+      <CommonModal
+        visible={modalVisible}
+        header={readTagStep !== 2 ? 'Quét thẻ NFC' : 'Thêm mới thẻ NFC'}
+        isWarning={readTagStep !== 1}
+        icWarning={
+          readTagStep == 3
+            ? error
+              ? icWarningColor
+              : icCreateUIDone
+            : loading
+            ? icLoading
+            : imgScanNFC
+        }
+        warningTitle={
+          readTagStep == 3
+            ? error
+              ? `Đã xảy ra lỗi khi thêm thẻ NFC,\nvui lòng thử lại `
+              : 'Thêm mới thẻ NFC thành công'
+            : loading
+            ? 'Đang khởi tạo thẻ NFC ...'
+            : 'Vui lòng đặt thẻ lên khu vực quét NFC của điện thoại và chờ hoàn tất'
+        }
+        content={renderModalContent()}
+        bottomContent={renderBottomContent()}
+        onClose={() => {
+          setModalVisible(false);
+          setReadTagStep(1);
+        }}
+      />
     </View>
   );
 };
 
 const styles = StyleSheet.create({
+  addNewTagAdmin: {
+    position: 'absolute',
+    top: 20,
+    right: 20,
+  },
   header: {
     paddingLeft: 20,
     marginTop: Platform.OS === 'android' ? 0 : 40,
@@ -277,10 +452,11 @@ const styles = StyleSheet.create({
     elevation: 2,
     borderWidth: 2,
     borderColor: '#E2E7FB',
-    shadowColor: '#091FB41A',
-    shadowOffset: {width: 0, height: 2},
-    shadowOpacity: 0.2,
+    // shadowColor: '#091FB41A',
+    // shadowOffset: {width: 0, height: 2},
+    // shadowOpacity: 0.2,
     shadowRadius: 10,
+    marginTop: 15,
   },
 });
 

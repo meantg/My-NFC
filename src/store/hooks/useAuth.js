@@ -1,3 +1,4 @@
+/* eslint-disable no-catch-shadow */
 import {useDispatch, useSelector} from 'react-redux';
 import {
   loginUser,
@@ -24,6 +25,7 @@ export const useAuth = () => {
 
   const resetOTP = async email => {
     try {
+      // @ts-ignore
       const result = await dispatch(resetOTPAsync(email)).unwrap();
       return {success: true, data: result};
     } catch (error) {
@@ -33,6 +35,7 @@ export const useAuth = () => {
 
   const verifyOTP = async ({otp, email}) => {
     try {
+      // @ts-ignore
       const result = await dispatch(verifyOTPAsync({otp, email})).unwrap();
       return {success: true, data: result};
     } catch (error) {
@@ -42,7 +45,9 @@ export const useAuth = () => {
 
   const login = async ({username, password}) => {
     try {
+      // @ts-ignore
       const result = await dispatch(
+        // @ts-ignore
         loginUser({
           username,
           password,
@@ -60,6 +65,7 @@ export const useAuth = () => {
     }
 
     try {
+      // @ts-ignore
       await dispatch(logoutUserAsync(token)).unwrap();
       return {success: true};
     } catch (error) {
@@ -76,6 +82,7 @@ export const useAuth = () => {
     },
   }) => {
     try {
+      // @ts-ignore
       const result = await dispatch(registerUserAsync({userData})).unwrap();
       return {success: true, data: result};
     } catch (error) {
@@ -85,6 +92,7 @@ export const useAuth = () => {
 
   const refreshToken = async () => {
     try {
+      // @ts-ignore
       const result = await dispatch(refreshTokenAsync(token)).unwrap();
       return {success: true, data: result};
     } catch (error) {
@@ -98,6 +106,7 @@ export const useAuth = () => {
     }
 
     try {
+      // @ts-ignore
       const result = await dispatch(fetchUserProfile({token})).unwrap();
       return {success: true, data: result};
     } catch (error) {

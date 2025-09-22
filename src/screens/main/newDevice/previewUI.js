@@ -21,6 +21,7 @@ import {useNavigation} from '@react-navigation/native';
 import {BlurView} from '@react-native-community/blur';
 import {useEffect, useState} from 'react';
 import CommonButton from '../../../components/commonButton';
+import LinearGradient from 'react-native-linear-gradient';
 
 // Example default config, replace with props/config from UIConfig
 const defaultConfig = {
@@ -33,15 +34,15 @@ const defaultConfig = {
   buttons: [
     {
       icon: icWifiColor,
-      text: 'Wifi đại sảnh',
+      value: 'Wifi đại sảnh',
     },
     {
       icon: icLink,
-      text: 'Ẩm thực đường phố',
+      value: 'Ẩm thực đường phố',
     },
     {
       icon: icRating,
-      text: 'Đánh giá dịch vụ',
+      value: 'Đánh giá dịch vụ',
     },
   ],
 };
@@ -71,7 +72,10 @@ const PreviewUI = ({route}) => {
         cardColor: route.params.config.cardColor,
         borderColor: route.params.config.borderColor,
         btnStyle: route.params.config.btnStyle.style,
-        buttons: defaultConfig.buttons,
+        buttons:
+          route.params.contentList?.length > 0
+            ? route.params.contentList
+            : defaultConfig.buttons,
       });
     } else {
       setIsComplete(true);
@@ -133,7 +137,9 @@ const PreviewUI = ({route}) => {
         </View>
         {/* Content */}
         <View style={styles.container}>
-          <Text style={[styles.title, {color: txtColor}]}>Chào mừng bạn</Text>
+          <Text style={[styles.title, {color: txtColor}]}>
+            {buttons[0]?.value}
+          </Text>
           <View style={{height: 24}} />
           {buttons.map((btn, idx) => (
             <TouchableOpacity
@@ -150,11 +156,20 @@ const PreviewUI = ({route}) => {
               <Image source={btn.icon} style={styles.buttonIcon} />
               <View style={{flex: 1, alignItems: 'center'}}>
                 <Text style={[styles.buttonText, {color: txtColor}]}>
-                  {btn.text}
+                  {btn.value}
                 </Text>
               </View>
             </TouchableOpacity>
           ))}
+        </View>
+        <View style={styles.bottomButtonsContainer}>
+          <TouchableOpacity style={styles.doneBtn}>
+            <LinearGradient
+              colors={['#162ED0', '#071DAF']}
+              style={styles.doneBtnGradient}>
+              <Text style={styles.doneBtnText}>Hoàn Tất</Text>
+            </LinearGradient>
+          </TouchableOpacity>
         </View>
       </ImageBackground>
     </View>
@@ -162,6 +177,46 @@ const PreviewUI = ({route}) => {
 };
 
 const styles = StyleSheet.create({
+  doneBtnGradient: {
+    width: '100%',
+    height: 48,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 14,
+  },
+  cancelBtn: {
+    flex: 1,
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#C9CCDC',
+    paddingVertical: 14,
+    alignItems: 'center',
+    marginRight: 8,
+  },
+  cancelBtnText: {
+    color: '#38434E',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  doneBtn: {
+    flex: 1,
+    alignItems: 'center',
+    marginLeft: 8,
+  },
+  doneBtnText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  bottomButtonsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 15,
+    marginBottom: 20,
+  },
   header: {
     position: 'absolute',
     top: 0,
