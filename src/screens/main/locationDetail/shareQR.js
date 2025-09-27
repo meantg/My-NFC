@@ -1,19 +1,15 @@
-import React, {useRef} from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  Alert,
-  Share,
-} from 'react-native';
+import React, {useEffect, useRef, useState} from 'react';
+import {Alert, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 // import Icon from 'react-native-vector-icons/Ionicons';
-import ViewShot from 'react-native-view-shot';
 import RNFS from 'react-native-fs';
-import {SvgXml} from 'react-native-svg';
-import {shareQRSvg} from '../../../images/index';
+import ViewShot from 'react-native-view-shot';
 import CommonHeader from '../../../components/commonHeader';
+import {fillWifiSvg} from '../../../utils/func';
+import {shareQRSvg} from '../../../images/shareQR';
+import Share from 'react-native-share';
+import {SvgXml} from 'react-native-svg';
+import WebView from 'react-native-webview';
 
 export default function ShareQR({navigation, route}) {
   console.log('shareQR', route.params);
@@ -21,13 +17,23 @@ export default function ShareQR({navigation, route}) {
   const ssid = data.ssid;
   const password = data.password;
   const wifiData = `WIFI:T:WPA;S:${ssid};P:${password};;`;
-
+  const [svgData, setSvgData] = useState({});
   const viewShotRef = useRef();
+
+  useEffect(() => {
+    handleSVGWifi();
+  }, []);
+
+  const handleSVGWifi = async () => {
+    const svgWifi = await fillWifiSvg(shareQRSvg, ssid, password);
+    console.log('svgWifi', svgWifi);
+    setSvgData(svgWifi);
+  };
 
   // Save PNG to file system
   const handleCapture = async () => {
     try {
-      const uri = await viewShotRef.current.capture();
+      const uri = await viewShotRef.current?.capture();
 
       // Create filename with timestamp
       const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
@@ -47,14 +53,14 @@ export default function ShareQR({navigation, route}) {
   // Share PNG
   const handleShare = async () => {
     try {
-      const filePath = await handleCapture();
+      // const filePath = await handleCapture();
 
-      if (!filePath) return;
+      // if (!filePath) return;
 
       await Share.open({
         title: 'Share WiFi QR Code',
-        message: `Here is the WiFi QR code for ${ssid}`,
-        url: 'file://' + filePath,
+        url: svgData.filePath,
+        filename: `Wifi ${ssid}`,
         type: 'image/png',
       });
     } catch (error) {
@@ -80,12 +86,14 @@ export default function ShareQR({navigation, route}) {
       <ViewShot ref={viewShotRef} options={{format: 'png', quality: 1.0}}>
         <View style={styles.shareContainer}>
           {/* SVG Background */}
-          {/* <SvgXml
-            xml={shareQRSvg}
-            width="100%"
-            height="100%"
-            style={styles.svgBackground}
-          /> */}
+          {/* {svgData.svgString?.length > 0 && (
+            <SvgXml
+              xml={svgData.svgString}
+              width="100%"
+              height="100%"
+              style={styles.svgBackground}
+            />
+          )} */}
 
           {/* QR Code positioned over the SVG */}
           <View style={styles.qrOverlay}>
@@ -156,9 +164,6 @@ const styles = StyleSheet.create({
     padding: 20,
     alignItems: 'center',
     shadowColor: '#000',
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 5,
     marginTop: 50, // Adjust this to position QR code in the right spot on the SVG
   },
   qrWrapper: {
@@ -168,7 +173,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   text: {
-    fontSize: 16,
+    fontSize: 25,
     fontWeight: '500',
     marginVertical: 2,
     color: '#333',

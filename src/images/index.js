@@ -1,3 +1,4 @@
+// @ts-nocheck
 //img
 export const NextapLogo = require('./img/NextapLogo.png');
 export const imgSentResetPasswordDone = require('./img/imgSentResetPasswordDone.png');
@@ -55,4 +56,4 @@ export const icShare = require('./icon/icShare.png');
 export const icWifiLocation = require('./icon/icWifiLocation.png');
 
 //svg
-export const shareQRSvg = require('./svg/shareQR.svg');
+// export const shareQRSvg = require('./svg/shareQR.svg');

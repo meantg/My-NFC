@@ -1,5 +1,8 @@
 import {Buffer} from 'buffer';
 import NfcManager, {Ndef, NfcTech} from 'react-native-nfc-manager';
+import QRCode from 'qrcode-svg';
+import formatXml from 'xml-formatter';
+import RNFS from 'react-native-fs';
 
 export const validateEmail = email => {
   if (!email || typeof email !== 'string') return false;
@@ -462,3 +465,55 @@ export function convertErrorMessage(msg) {
   }
   return msg;
 }
+
+/**
+ * Fill WiFi info into an existing SVG template
+ * @param {string} templateSvg - Your base SVG string (with <rect id="qrcode"/> and <rect id="infor"/>)
+ * @param {string} ssid - WiFi SSID
+ * @param {string} password - WiFi Password
+ * @returns {Promise<string>} - SVG string with QR + info text injected
+ */
+// or your formatXml
+
+export async function fillWifiSvg(templateSvg, ssid, password) {
+  const wifiString = `WIFI:T:WPA;S:${ssid};P:${password};;`;
+
+  // 1. Generate QR as SVG fragment
+  const qr = new QRCode({
+    content: wifiString,
+    padding: 2,
+    width: 51,
+    height: 51,
+    color: '#000000',
+  });
+
+  let qrSvg = qr
+    .svg()
+    .replace(/<\?xml.*?\?>/, '')
+    .replace(/<!DOCTYPE.*?>/, '');
+
+  // 2. Inject QR into <rect id="qrcode">
+  let filledSvg = templateSvg.replace(
+    /<rect[^>]*id="qrcode"[^>]*>/,
+    match => `${match}\n<g transform="translate(215,143.5)">${qrSvg}</g>`,
+  );
+
+
+  filledSvg = filledSvg.replace(
+    /<rect[^>]*id="infor"[^>]*>/,
+    match =>
+      `${match}\n<text x="295" y="167" font-size="8" fill="white">📶 ${ssid}</text>\n<text x="295" y="177" font-size="8" fill="white">🔑 ${password}</text>`,
+  );
+
+  // 4. Prettify output
+  const prettySvg = formatXml(filledSvg, { indentation: '  ' });
+
+  // 5. Save to file
+  const filePath = `${RNFS.CachesDirectoryPath}/wifi-${ssid}.svg`;
+  await RNFS.writeFile(filePath, prettySvg, 'utf8');
+
+  console.log('✅ SVG saved at:', filePath);
+
+  return { svgString: prettySvg, filePath };
+}
+
