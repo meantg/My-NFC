@@ -502,7 +502,7 @@ export async function fillWifiSvg(templateSvg, ssid, password) {
   filledSvg = filledSvg.replace(
     /<rect[^>]*id="infor"[^>]*>/,
     match =>
-      `${match}\n<text x="295" y="167" font-size="8" fill="white">📶 ${ssid}</text>\n<text x="295" y="177" font-size="8" fill="white">🔑 ${password}</text>`,
+      `${match}\n<text x="295" y="167" font-size="8" fill="white">Network: ${ssid}</text>\n<text x="295" y="177" font-size="8" fill="white">Key: ${password}</text>`,
   );
 
   // 4. Prettify output
@@ -517,3 +517,21 @@ export async function fillWifiSvg(templateSvg, ssid, password) {
   return { svgString: prettySvg, filePath };
 }
 
+export async function saveBase64Image(base64data) {
+  try {
+    // 1. Remove the header "data:image/png;base64,"
+    const base64 = base64data.replace(/^data:image\/png;base64,/, '');
+
+    // 2. Create file path
+    const path = `${RNFS.DocumentDirectoryPath}/converted_${Date.now()}.png`;
+
+    // 3. Write file to local storage
+    await RNFS.writeFile(path, base64, 'base64');
+    console.log('✅ Saved PNG to:', path);
+
+    return 'file://' + path; // Return for display
+  } catch (error) {
+    console.error('❌ Save image error:', error);
+    throw error;
+  }
+}
