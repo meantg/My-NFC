@@ -1,5 +1,6 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {LOCAL_STORAGE_KEY} from '../utils/const';
 
 export const domainAPI = 'https://apinextap.nexview.vn';
 
@@ -40,7 +41,7 @@ apiClient.interceptors.response.use(
       originalRequest._retry = true;
 
       // Clear stored token
-      await AsyncStorage.removeItem('authToken');
+      await AsyncStorage.removeItem(LOCAL_STORAGE_KEY.AUTH_TOKEN);
 
       // You can dispatch logout action here if needed
       // dispatch(logout());
@@ -64,7 +65,7 @@ export const apiService = {
     },
     logout: async () => {
       const response = await apiClient.post('/auth/logout');
-      await AsyncStorage.removeItem('authToken');
+      await AsyncStorage.removeItem(LOCAL_STORAGE_KEY.AUTH_TOKEN);
       return response.data;
     },
     getProfile: async () => {
@@ -144,13 +145,13 @@ export const apiService = {
 // Token management
 export const tokenService = {
   setToken: async token => {
-    await AsyncStorage.setItem('authToken', token);
+    await AsyncStorage.setItem(LOCAL_STORAGE_KEY.AUTH_TOKEN, token);
   },
   getToken: async () => {
-    return await AsyncStorage.getItem('authToken');
+    return await AsyncStorage.getItem(LOCAL_STORAGE_KEY.AUTH_TOKEN);
   },
   removeToken: async () => {
-    await AsyncStorage.removeItem('authToken');
+    await AsyncStorage.removeItem(LOCAL_STORAGE_KEY.AUTH_TOKEN);
   },
 };
 

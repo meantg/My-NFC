@@ -1,15 +1,21 @@
-import React, {useEffect, useRef, useState} from 'react';
-import {Alert, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+/* eslint-disable react-native/no-inline-styles */
+import React, {useEffect, useState} from 'react';
+import {
+  Alert,
+  Dimensions,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 // import Icon from 'react-native-vector-icons/Ionicons';
 import RNFS from 'react-native-fs';
-import ViewShot from 'react-native-view-shot';
-import CommonHeader from '../../../components/commonHeader';
-import {fillWifiSvg} from '../../../utils/func';
-import {shareQRSvg} from '../../../images/shareQR';
 import Share from 'react-native-share';
-import {SvgXml} from 'react-native-svg';
-import WebView from 'react-native-webview';
+import CommonHeader from '../../../components/commonHeader';
+import {shareQRSvg} from '../../../images/shareQR';
+import {postConvertSVGToImage} from '../../../store/api/userApi';
+import {fillWifiSvg} from '../../../utils/func';
 
 export default function ShareQR({navigation, route}) {
   console.log('shareQR', route.params);
@@ -18,48 +24,91 @@ export default function ShareQR({navigation, route}) {
   const password = data.password;
   const wifiData = `WIFI:T:WPA;S:${ssid};P:${password};;`;
   const [svgData, setSvgData] = useState({});
-  const viewShotRef = useRef();
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     handleSVGWifi();
   }, []);
 
   const handleSVGWifi = async () => {
+    setLoading(true);
     const svgWifi = await fillWifiSvg(shareQRSvg, ssid, password);
     console.log('svgWifi', svgWifi);
     setSvgData(svgWifi);
+    handleCapture(svgWifi.filePath);
   };
 
   // Save PNG to file system
-  const handleCapture = async () => {
+  const handleCapture = async filePath => {
     try {
-      const uri = await viewShotRef.current?.capture();
+      let uri = filePath || svgData.filePath;
+      // For simulator (absolute path without "file://")
+      if (!uri.startsWith('file://')) {
+        uri = 'file://' + uri;
+      }
 
-      // Create filename with timestamp
-      const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-      const fileName = `wifi_qr_${timestamp}.png`;
-
-      // Save to Downloads folder
-      const downloadsPath = `${RNFS.DownloadDirectoryPath}/${fileName}`;
-
-      await RNFS.copyFile(uri, downloadsPath);
-      Alert.alert('✅ Saved', `QR code saved to Downloads:\n${fileName}`);
-      return downloadsPath;
+      // For Android "content://" URIs, copy to a temp file
+      if (uri.startsWith('content://')) {
+        const destPath = `${RNFS.TemporaryDirectoryPath}/temp-upload.svg`;
+        await RNFS.copyFile(uri, destPath);
+        uri = 'file://' + destPath;
+      }
+      const formData = new FormData();
+      formData.append('svgFile', {
+        uri: uri,
+        name: 'wifi_qr.svg',
+        type: 'image/svg+xml',
+      });
+      console.log('uri', uri);
+      console.log('formData', formData);
+      await postConvertSVGToImage(formData).then(async res => {
+        console.log('res', res);
+        if (res) {
+          const arrayBuffer = res;
+          const base64data = global.Buffer.from(arrayBuffer).toString('base64'); // <-- Encode PNG to base64
+          // 6️⃣ Save file to local storage
+          const filePath = `${RNFS.DocumentDirectoryPath}/converted_wifi.png`;
+          await RNFS.writeFile(filePath, base64data, 'base64');
+          setSvgData(prev => ({...prev, imgUri: filePath}));
+          console.log('✅ PNG saved at:', filePath);
+          setTimeout(() => {
+            setLoading(false);
+          }, 500);
+        } else {
+          setTimeout(() => {
+            setLoading(false);
+          }, 500);
+          Alert.alert('❌ Error', res.message);
+        }
+      });
     } catch (error) {
+      console.log('handleCapture error', error);
       Alert.alert('❌ Error', error.message);
     }
+    // try {
+    //   const uri = await viewShotRef.current?.capture();
+
+    //   // Create filename with timestamp
+    //   const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    //   const fileName = `wifi_qr_${timestamp}.png`;
+
+    //   // Save to Downloads folder
+    //   const downloadsPath = `${RNFS.DownloadDirectoryPath}/${fileName}`;
+
+    //   await RNFS.copyFile(uri, downloadsPath);
+    //   Alert.alert('✅ Saved', `QR code saved to Downloads:\n${fileName}`);
+    //   return downloadsPath;
+    // } catch (error) {
+    //   Alert.alert('❌ Error', error.message);
+    // }
   };
 
   // Share PNG
   const handleShare = async () => {
     try {
-      // const filePath = await handleCapture();
-
-      // if (!filePath) return;
-
       await Share.open({
         title: 'Share WiFi QR Code',
-        url: svgData.filePath,
+        url: svgData.imgUri,
         filename: `Wifi ${ssid}`,
         type: 'image/png',
       });
@@ -77,55 +126,40 @@ export default function ShareQR({navigation, route}) {
         titleStyle={{color: '#111921'}}
         onBack={() => navigation.goBack()}
         white={true}
-        // rightContent={
-        //   <TouchableOpacity>
-        //     <Image source={icSettingGrey} style={{width: 20, height: 20}} />
-        //   </TouchableOpacity>
-        // }
       />
-      <ViewShot ref={viewShotRef} options={{format: 'png', quality: 1.0}}>
+      <View style={{flex: 1, alignItems: 'center'}}>
         <View style={styles.shareContainer}>
-          {/* SVG Background */}
-          {/* {svgData.svgString?.length > 0 && (
-            <SvgXml
-              xml={svgData.svgString}
-              width="100%"
-              height="100%"
-              style={styles.svgBackground}
-            />
-          )} */}
-
-          {/* QR Code positioned over the SVG */}
-          <View style={styles.qrOverlay}>
-            <View style={styles.qrCard}>
-              <View style={styles.qrWrapper}>
-                <QRCode
-                  value={wifiData}
-                  size={160}
-                  // logo={<Icon name="camera-outline" size={40} color="#000" />}
-                  logoSize={40}
-                  logoBackgroundColor="transparent"
-                />
-              </View>
-              <View style={styles.textBox}>
-                <Text style={styles.text}>📶 {ssid}</Text>
-                <Text style={styles.text}>🔑 {password}</Text>
-              </View>
+          <View style={styles.qrCard}>
+            <View style={styles.qrWrapper}>
+              <QRCode
+                value={wifiData}
+                size={160}
+                logoSize={40}
+                logoBackgroundColor="transparent"
+              />
+            </View>
+            <View style={styles.textBox}>
+              <Text style={styles.text}>📶 {ssid}</Text>
+              <Text style={styles.text}>🔑 {password}</Text>
             </View>
           </View>
+          <View style={styles.actions}>
+            <TouchableOpacity
+              style={[
+                styles.button,
+                {
+                  backgroundColor: '#34A853',
+                  opacity: loading ? 0.3 : 1,
+                },
+              ]}
+              disabled={loading}
+              onPress={handleShare}>
+              <Text style={styles.buttonText}>{`${
+                loading ? 'Đang tải...' : '📤 Chia sẻ'
+              }`}</Text>
+            </TouchableOpacity>
+          </View>
         </View>
-      </ViewShot>
-
-      <View style={styles.actions}>
-        <TouchableOpacity style={styles.button} onPress={handleCapture}>
-          <Text style={styles.buttonText}>💾 Save PNG</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[styles.button, {backgroundColor: '#34A853'}]}
-          onPress={handleShare}>
-          <Text style={styles.buttonText}>📤 Share PNG</Text>
-        </TouchableOpacity>
       </View>
     </View>
   );
@@ -139,8 +173,7 @@ const styles = StyleSheet.create({
   },
   shareContainer: {
     width: 400,
-    height: 600,
-    position: 'relative',
+    height: Dimensions.get('screen').height,
     backgroundColor: '#fff',
   },
   svgBackground: {
@@ -150,19 +183,12 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
   },
-  qrOverlay: {
-    top: 0,
-    left: 0,
-    width: '100%',
-    height: '100%',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
   qrCard: {
     backgroundColor: 'rgba(255, 255, 255, 0.95)',
     borderRadius: 16,
     padding: 20,
     alignItems: 'center',
+    justifyContent: 'center',
     shadowColor: '#000',
     marginTop: 50, // Adjust this to position QR code in the right spot on the SVG
   },
@@ -182,6 +208,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     marginTop: 20,
     gap: 10,
+    justifyContent: 'center',
   },
   button: {
     backgroundColor: '#007AFF',

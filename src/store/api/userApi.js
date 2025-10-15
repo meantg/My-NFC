@@ -144,3 +144,19 @@ export const getListProducts = async () => {
     return {success: false, ...error.response.data};
   }
 };
+
+export const postConvertSVGToImage = async svgData => {
+  let response;
+  try {
+    response = await apiClient.post('/v1/images/convert-image', svgData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+      responseType: 'arraybuffer',
+    });
+    return response.data;
+  } catch (error) {
+    console.log('api postConvertSVGToImage error', error);
+    return {success: false, ...error.response.data};
+  }
+};

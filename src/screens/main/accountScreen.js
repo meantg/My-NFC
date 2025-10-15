@@ -16,6 +16,8 @@ import {
 } from '../../images';
 import {useAuth} from '../../store/hooks/useAuth';
 import CommonLoading from '../../components/commonLoading';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {LOCAL_STORAGE_KEY} from '../../utils/const';
 
 const user = {
   name: 'Nguyễn Văn An',
@@ -42,10 +44,12 @@ const AccountScreen = ({navigation}) => {
   const {logout} = useAuth();
   const [loading, setLoading] = useState(false);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     setLoading(true);
-    logout().then(res => {
+    logout().then(async res => {
       if (res.success) {
+        await AsyncStorage.removeItem(LOCAL_STORAGE_KEY.AUTH_TOKEN);
+        await AsyncStorage.removeItem(LOCAL_STORAGE_KEY.LOGIN_INFOR);
         setTimeout(() => {
           setLoading(false);
           navigation.replace('Authentication');

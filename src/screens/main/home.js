@@ -49,6 +49,7 @@ const HomeScreen = ({navigation}) => {
   const handleReadNFC = async () => {
     setReadTagStep(2);
     await readTag().then(async res => {
+      console.log('readTag', res);
       setLoading(true);
       if (res.serialNumber) {
         await adminCreateTag({
