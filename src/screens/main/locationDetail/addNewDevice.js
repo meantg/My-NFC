@@ -88,13 +88,13 @@ const AddNewDeviceScreen = ({ navigation, route, setIsModalVisible, wifi, locati
                 'uid': tagData?.uid,
                 'ssid': wifiData.ssid,
               })}
-              // onPress={() => openWifiModal({
-              //   'name': productName,
-              //   'key': cardPassword,
-              //   'groupId': locationData._id,
-              //   'uid': tagData?.uid,
-              //   'ssid': wifiData.ssid,
-              // })}
+            // onPress={() => openWifiModal({
+            //   'name': productName,
+            //   'key': cardPassword,
+            //   'groupId': locationData._id,
+            //   'uid': tagData?.uid,
+            //   'ssid': wifiData.ssid,
+            // })}
             />
             <CommonTextInput
               title={'Mật khẩu wifi'}
@@ -123,6 +123,9 @@ const AddNewDeviceScreen = ({ navigation, route, setIsModalVisible, wifi, locati
         <View style={{ position: 'absolute', top: -10, left: 0, paddingBottom: 10, marginBottom: 10, width: '100%', flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
           <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#38434E' }}>Quét Thẻ NFC</Text>
         </View>
+        {step === 3 && <TouchableOpacity style={{ position: 'absolute', top: -15, right: 15 }} onPress={() => setIsModalVisible(false)}>
+          <Image source={icClose} style={{ width: 20, height: 20 }} />
+        </TouchableOpacity>}
         <View
           style={{
             height: 250,
@@ -138,7 +141,7 @@ const AddNewDeviceScreen = ({ navigation, route, setIsModalVisible, wifi, locati
               marginBottom: 20,
               fontWeight: '500',
             }}>
-            {step === 3 ? 'Đã xảy ra lỗi trong quá trình quét thẻ,\nvui lòng thử lại !' : step === 4 ? (isEdit ? `Sửa sản phẩm thành công` :  `Thêm sản phẩm thành công`) : 'Vui lòng đặt thẻ lên khu vực quét NFC\ncủa điện thoại và chờ hoàn tất'}
+            {step === 3 ? 'Đã xảy ra lỗi trong quá trình quét thẻ,\nvui lòng thử lại !' : step === 4 ? (isEdit ? `Sửa sản phẩm thành công` : `Thêm sản phẩm thành công`) : 'Vui lòng đặt thẻ lên khu vực quét NFC\ncủa điện thoại và chờ hoàn tất'}
           </Text>
           <Image source={step === 3 ? icWarningColor : step === 4 ? icCreateUIDone : imgScanNFC} style={{ width: 200, height: 200 }} />
         </View>
@@ -148,7 +151,7 @@ const AddNewDeviceScreen = ({ navigation, route, setIsModalVisible, wifi, locati
             handleWrite();
           } else if (step === 4) {
             setIsModalVisible(false);
-            getLocationData();
+            getLocationData(true);
             setStep(1);
           } else {
             setIsModalVisible(false)
@@ -162,9 +165,6 @@ const AddNewDeviceScreen = ({ navigation, route, setIsModalVisible, wifi, locati
     <TouchableOpacity activeOpacity={1} onPress={() => Keyboard.dismiss()} style={styles.container}>
       <View style={{ position: 'absolute', top: -10, left: 0, borderBottomWidth: 1, borderColor: '#E2E7FB', paddingBottom: 10, marginBottom: 10, width: '100%', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
         <Text style={{ fontSize: 18, left: 15, fontWeight: 'bold', color: '#38434E' }}>{isEdit ? `Sửa sản phẩm` : `Thêm sản phẩm`}</Text>
-        {/* <TouchableOpacity style={{ marginRight: 15 }} onPress={() => setIsModalVisible(false)}>
-          <Image source={icClose} style={{ width: 20, height: 20 }} />
-        </TouchableOpacity> */}
       </View>
       <ScrollView>
         <View style={{ padding: 20, marginTop: 20 }}>

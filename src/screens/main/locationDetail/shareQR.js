@@ -3,6 +3,7 @@ import React, {useEffect, useState} from 'react';
 import {
   Alert,
   Dimensions,
+  Platform,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -103,6 +104,40 @@ export default function ShareQR({navigation, route}) {
     // }
   };
 
+  const handleDownload = async () => {
+    try {
+      if (!svgData.imgUri) {
+        Alert.alert('❌ Error', 'No image available to download');
+        return;
+      }
+
+      setLoading(true);
+
+      // Create filename with timestamp
+      const fileName = `Wifi_${ssid}.png`;
+
+      // Get Downloads directory path
+      const downloadsPath = `${RNFS.DownloadDirectoryPath}/${fileName}`;
+
+      // Copy file from cache to Downloads folder
+      await RNFS.copyFile(svgData.imgUri, downloadsPath);
+
+      Alert.alert(
+        '✅ Tải xuống QR thành công',
+        `QR đã được lưu vào thư mục Downloads: ${fileName}`,
+        [{text: 'OK'}],
+      );
+    } catch (error) {
+      console.error('Download error:', error);
+      Alert.alert(
+        '❌ Download Failed',
+        error.message || 'Failed to download image',
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Share PNG
   const handleShare = async () => {
     try {
@@ -148,16 +183,32 @@ export default function ShareQR({navigation, route}) {
               style={[
                 styles.button,
                 {
-                  backgroundColor: '#34A853',
+                  backgroundColor: '#3A7BF6',
                   opacity: loading ? 0.3 : 1,
                 },
               ]}
               disabled={loading}
               onPress={handleShare}>
               <Text style={styles.buttonText}>{`${
-                loading ? 'Đang tải...' : '📤 Chia sẻ'
+                loading ? 'Đang tải...' : 'Chia sẻ  📤'
               }`}</Text>
             </TouchableOpacity>
+            {Platform.OS === 'android' && (
+              <TouchableOpacity
+                style={[
+                  styles.button,
+                  {
+                    backgroundColor: '#3A7BF6',
+                    opacity: loading ? 0.3 : 1,
+                  },
+                ]}
+                disabled={loading}
+                onPress={handleDownload}>
+                <Text style={styles.buttonText}>{`${
+                  loading ? 'Đang tải...' : 'Tải xuống  📥'
+                }`}</Text>
+              </TouchableOpacity>
+            )}
           </View>
         </View>
       </View>
@@ -169,12 +220,10 @@ const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#f8f8f8',
   },
   shareContainer: {
-    width: 400,
+    width: Dimensions.get('screen').width,
     height: Dimensions.get('screen').height,
-    backgroundColor: '#fff',
   },
   svgBackground: {
     position: 'absolute',
@@ -184,7 +233,6 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   qrCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.95)',
     borderRadius: 16,
     padding: 20,
     alignItems: 'center',

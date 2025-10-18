@@ -69,13 +69,20 @@ const LocationDetail = ({navigation, route}) => {
   //   }
   // },[isFocused])
 
-  const getLocationData = async () => {
+  const getLocationData = async (isNewTag = false) => {
     await fetchProducts().then(res => {
       const id = _locationData._id;
       if (res.success) {
         let findLocation = res.data.find(l => l._id == id);
         if (findLocation) {
           setLocationData(findLocation);
+          if (isNewTag) {
+            setTimeout(() => {
+              navigation.navigate('ShareQR', {
+                item: findLocation.products[0],
+              });
+            }, 500);
+          }
         }
       } else {
         setLocationData(_locationData);
@@ -293,7 +300,7 @@ const LocationDetail = ({navigation, route}) => {
           <Text style={styles.warningTitle}>
             Bạn có chắc chắn muốn xóa sản phẩm
             <Text style={{fontWeight: 'bold'}}>
-              {`\n`}
+              {'\n'}
               {modalData.name}{' '}
             </Text>{' '}
             khỏi vị trí này không?
@@ -436,10 +443,10 @@ const LocationDetail = ({navigation, route}) => {
         warningTitle={
           modalType === 'readTag' &&
           (loading
-            ? `Đang kiểm tra thẻ NFC trên hệ thống ...`
+            ? 'Đang kiểm tra thẻ NFC trên hệ thống ...'
             : error
             ? error
-            : `Vui lòng đặt thẻ lên khu vực quét NFC của điện thoại và chờ hoàn tất`)
+            : 'Vui lòng đặt thẻ lên khu vực quét NFC của điện thoại và chờ hoàn tất')
         }
         content={renderModalContent()}
         bottomContent={modalType === 'delete' && renderModalButton()}
