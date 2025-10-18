@@ -1,8 +1,10 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, {useEffect, useState} from 'react';
 import {
+  ActivityIndicator,
   Alert,
   Dimensions,
+  Image,
   Platform,
   StyleSheet,
   Text,
@@ -70,7 +72,7 @@ export default function ShareQR({navigation, route}) {
           // 6️⃣ Save file to local storage
           const filePath = `${RNFS.DocumentDirectoryPath}/converted_wifi.png`;
           await RNFS.writeFile(filePath, base64data, 'base64');
-          setSvgData(prev => ({...prev, imgUri: filePath}));
+          setSvgData(prev => ({...prev, imgUri: `file://${filePath}`}));
           console.log('✅ PNG saved at:', filePath);
           setTimeout(() => {
             setLoading(false);
@@ -165,7 +167,36 @@ export default function ShareQR({navigation, route}) {
       <View style={{flex: 1, alignItems: 'center'}}>
         <View style={styles.shareContainer}>
           <View style={styles.qrCard}>
-            <View style={styles.qrWrapper}>
+            {loading ? (
+              <View
+                style={{
+                  height: Dimensions.get('screen').height * 0.7,
+                  width: Dimensions.get('screen').width * 0.8,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                }}>
+                <ActivityIndicator size="large" color="#3A7BF6" />
+                <Text
+                  style={{
+                    color: '#3A7BF6',
+                    fontSize: 16,
+                    fontWeight: 'bold',
+                    marginTop: 10,
+                  }}>
+                  Đang tải...
+                </Text>
+              </View>
+            ) : (
+              <Image
+                source={{uri: svgData.imgUri}}
+                style={{
+                  width: Dimensions.get('screen').width * 0.8,
+                  height: Dimensions.get('screen').height * 0.7,
+                }}
+                resizeMode="contain"
+              />
+            )}
+            {/* <View style={styles.qrWrapper}>
               <QRCode
                 value={wifiData}
                 size={160}
@@ -176,7 +207,7 @@ export default function ShareQR({navigation, route}) {
             <View style={styles.textBox}>
               <Text style={styles.text}>📶 {ssid}</Text>
               <Text style={styles.text}>🔑 {password}</Text>
-            </View>
+            </View> */}
           </View>
           <View style={styles.actions}>
             <TouchableOpacity
@@ -238,7 +269,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: '#000',
-    marginTop: 50, // Adjust this to position QR code in the right spot on the SVG
   },
   qrWrapper: {
     marginBottom: 15,

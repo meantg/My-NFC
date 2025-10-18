@@ -502,7 +502,7 @@ export async function fillWifiSvg(templateSvg, ssid, password) {
   filledSvg = filledSvg.replace(
     /<rect[^>]*id="infor"[^>]*>/,
     match =>
-      `${match}\n<text x="295" y="167" font-size="8" fill="white">Network: ${ssid}</text>\n<text x="295" y="177" font-size="8" fill="white">Key: ${password}</text>`,
+      `${match}\n<text x="295" y="167" font-size="6" fill="white">Wifi: ${ssid}</text>\n<text x="295" y="177" font-size="6" fill="white">Key: ${password}</text>`,
   );
 
   // 4. Prettify output
