@@ -108,13 +108,12 @@ export const getUserProfile = async ({token}) => {
   }
 };
 
-export const updateUserProfile = async ({token, profileData}) => {
+export const updateUserProfile = async ({firstName, lastName}) => {
   let response;
   try {
-    response = await apiClient.put('/auth/profile', profileData, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+    response = await apiClient.put('/v1/users/update', {
+      firstName,
+      lastName,
     });
     return response.data;
   } catch (error) {
@@ -145,13 +144,12 @@ export const resetUserPassword = async ({resetData}) => {
   }
 };
 
-export const changeUserPassword = async ({token, passwordData}) => {
+export const changeUserPassword = async ({currentPassword, newPassword}) => {
   let response;
   try {
-    response = await apiClient.post('/auth/change-password', passwordData, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+    response = await apiClient.put('/v1/users/update', {
+      current_password: currentPassword,
+      new_password: newPassword,
     });
     return response.data;
   } catch (error) {

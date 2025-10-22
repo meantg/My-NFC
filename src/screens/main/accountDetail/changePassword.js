@@ -9,16 +9,94 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  Alert,
 } from 'react-native';
 import CommonHeader from '../../../components/commonHeader';
 import CommonButton from '../../../components/commonButton';
 import CommonTextInput from '../../../components/commonTextInput';
+import {useDispatch} from 'react-redux';
+import {changeUserPasswordAsync} from '../../../store/slices/authSlice';
+import CommonLoading from '../../../components/commonLoading';
 
 const ChangePassword = ({navigation}) => {
-  const [locationName, setLocationName] = useState('');
+  const dispatch = useDispatch();
+  const [password, setPassword] = useState({
+    current: '',
+    newPassword: '',
+    reNewPassword: '',
+  });
+  const [loading, setLoading] = useState(false);
+  const [loadingText, setLoadingText] = useState('Đang tải ...');
+
+  // Password validation function
+  const validatePassword = password => {
+    const hasLetter = /[a-zA-Z]/.test(password);
+    const hasNumber = /\d/.test(password);
+    const hasMinLength = password.length >= 8;
+
+    return {
+      hasLetter,
+      hasNumber,
+      hasMinLength,
+      isValid: hasLetter && hasNumber && hasMinLength,
+    };
+  };
+
+  // Validate all fields
+  const validateForm = () => {
+    const newErrors = {};
+
+    // Validate current password
+    if (!password.current.trim()) {
+      newErrors.current = 'Vui lòng nhập mật khẩu hiện tại';
+    }
+
+    // Validate new password
+    const passwordValidation = validatePassword(password.newPassword);
+    if (!password.newPassword.trim()) {
+      newErrors.newPassword = 'Vui lòng nhập mật khẩu mới';
+    } else if (!passwordValidation.isValid) {
+      let errorMsg = 'Mật khẩu mới phải có:';
+      if (!passwordValidation.hasLetter) errorMsg += ' ít nhất 1 chữ cái,';
+      if (!passwordValidation.hasNumber) errorMsg += ' ít nhất 1 số,';
+      if (!passwordValidation.hasMinLength) errorMsg += ' ít nhất 8 ký tự';
+      newErrors.newPassword = errorMsg;
+    }
+
+    // Validate password confirmation
+    if (!password.reNewPassword.trim()) {
+      newErrors.reNewPassword = 'Vui lòng xác nhận mật khẩu mới';
+    } else if (password.newPassword !== password.reNewPassword) {
+      newErrors.reNewPassword = 'Xác nhận mật khẩu mới không khớp';
+    }
+    return newErrors;
+  };
 
   const handleContinue = () => {
-    navigation.navigate('WebsiteConfig');
+    let error = validateForm();
+    if (Object.keys(error).length > 0) {
+      Alert.alert('Lỗi xác thực', Object.values(error)[0]);
+      return;
+    }
+    setLoading(true);
+    dispatch(
+      changeUserPasswordAsync({
+        currentPassword: password.current,
+        newPassword: password.newPassword,
+      }),
+    ).then(res => {
+      console.log('changeUserPasswordAsync', res);
+      if (res.payload.username) {
+        setLoadingText('Đổi mật khẩu thành công !');
+        setTimeout(() => {
+          setLoading(false);
+          navigation.goBack();
+        }, 2000);
+      } else {
+        setLoading(false);
+        Alert.alert('Thông báo', res.payload.message);
+      }
+    });
   };
 
   return (
@@ -26,6 +104,11 @@ const ChangePassword = ({navigation}) => {
       style={{flex: 1}}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       {/* Header */}
+      <CommonLoading
+        visible={loading}
+        text={loadingText}
+        isComplete={loadingText === 'Đổi mật khẩu thành công !'}
+      />
       <CommonHeader
         title="Đổi Mật Khẩu"
         titleStyle={{color: '#111921'}}
@@ -34,21 +117,31 @@ const ChangePassword = ({navigation}) => {
       />
       {/* Form */}
       <ScrollView style={styles.formContainer}>
-        {/* Tên vị trí */}
+        {/* Current Password */}
         <CommonTextInput
           title={'Mật khẩu hiện tại'}
           style={{marginBottom: 15}}
           isPassword={true}
+          value={password.current}
+          onChangeText={text => setPassword({...password, current: text})}
         />
+
+        {/* New Password */}
         <CommonTextInput
           title={'Mật khẩu mới'}
           style={{marginBottom: 15}}
           isPassword={true}
+          value={password.newPassword}
+          onChangeText={text => setPassword({...password, newPassword: text})}
         />
+
+        {/* Confirm New Password */}
         <CommonTextInput
           title={'Xác nhận mật khẩu mới'}
           style={{marginBottom: 15}}
           isPassword={true}
+          value={password.reNewPassword}
+          onChangeText={text => setPassword({...password, reNewPassword: text})}
         />
         {/* Cấu hình WiFi */}
         <CommonButton

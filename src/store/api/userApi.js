@@ -110,10 +110,9 @@ export const createNewLocation = async (locationData = {name: ''}) => {
 export const updateLocation = async (locationId, locationData = {name: ''}) => {
   let response;
   try {
-    response = await apiClient.put(
-      `/v1/group-products/${locationId}`,
-      locationData,
-    );
+    response = await apiClient.put(`/v1/group-products/update/${locationId}`, {
+      name: locationData.name,
+    });
     return response.data;
   } catch (error) {
     console.log('api updateLocation error', error);

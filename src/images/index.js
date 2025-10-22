@@ -54,6 +54,7 @@ export const icAddTagGrey = require('./icon/icAddTagGrey.png');
 export const icLoading = require('./icon/icLoading.png');
 export const icShare = require('./icon/icShare.png');
 export const icWifiLocation = require('./icon/icWifiLocation.png');
+export const icSuccess = require('./icon/icSuccess.png');
 
 //svg
 // export const shareQRSvg = require('./svg/shareQR.svg');

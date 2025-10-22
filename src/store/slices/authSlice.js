@@ -7,6 +7,8 @@ import {
   refreshUserToken,
   verifyOTP,
   resetOTP,
+  updateUserProfile,
+  changeUserPassword,
 } from '../api/authApi';
 import {tokenService} from '../../services/apiService';
 
@@ -164,6 +166,47 @@ export const refreshTokenAsync = createAsyncThunk(
       return rejectWithValue({
         success: false,
         message: error.message || 'Refresh token failed',
+      });
+    }
+  },
+);
+
+// Async thunk for update user information
+export const updateUserInfoAsync = createAsyncThunk(
+  'auth/updateUserInfo',
+  async ({firstName, lastName}, {rejectWithValue}) => {
+    try {
+      const response = await updateUserProfile({firstName, lastName});
+      if (response.success === false) {
+        return rejectWithValue(response);
+      }
+      return response;
+    } catch (error) {
+      return rejectWithValue({
+        success: false,
+        message: error.message || 'Update user information failed',
+      });
+    }
+  },
+);
+
+// Async thunk for update user information
+export const changeUserPasswordAsync = createAsyncThunk(
+  'auth/changeUserPassword',
+  async ({currentPassword, newPassword}, {rejectWithValue}) => {
+    try {
+      const response = await changeUserPassword({
+        currentPassword,
+        newPassword,
+      });
+      if (response.success === false) {
+        return rejectWithValue(response);
+      }
+      return response;
+    } catch (error) {
+      return rejectWithValue({
+        success: false,
+        message: error.message || 'Change user password failed',
       });
     }
   },

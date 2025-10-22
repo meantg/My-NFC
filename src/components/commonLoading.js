@@ -1,5 +1,13 @@
 import React from 'react';
-import {View, Text, StyleSheet, ActivityIndicator, Modal} from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ActivityIndicator,
+  Modal,
+  Image,
+} from 'react-native';
+import {icSuccess} from '../images';
 
 const CommonLoading = ({
   visible = false,
@@ -8,6 +16,7 @@ const CommonLoading = ({
   spinnerColor = '#fff',
   textColor = '#FFFFFF',
   size = 'large',
+  isComplete = false,
 }) => {
   return (
     <Modal
@@ -17,11 +26,19 @@ const CommonLoading = ({
       statusBarTranslucent={true}>
       <View style={[styles.container, {backgroundColor}]}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator
-            size={size}
-            color={spinnerColor}
-            style={styles.spinner}
-          />
+          {isComplete ? (
+            <Image
+              source={icSuccess}
+              style={{width: 50, height: 50}}
+              resizeMode="contain"
+            />
+          ) : (
+            <ActivityIndicator
+              size={size}
+              color={spinnerColor}
+              style={styles.spinner}
+            />
+          )}
           {text && (
             <Text style={[styles.loadingText, {color: textColor}]}>{text}</Text>
           )}

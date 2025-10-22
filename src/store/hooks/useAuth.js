@@ -13,6 +13,8 @@ import {
   refreshTokenAsync,
   verifyOTPAsync,
   resetOTPAsync,
+  changeUserPasswordAsync,
+  updateUserInfoAsync,
 } from '../slices/authSlice';
 
 export const useAuth = () => {
@@ -117,6 +119,34 @@ export const useAuth = () => {
     }
   };
 
+  const changePassword = async ({currentPassword, newPassword}) => {
+    try {
+      // @ts-ignore
+      const result = await dispatch(
+        // @ts-ignore
+        changeUserPasswordAsync({token, currentPassword, newPassword}),
+      ).unwrap();
+      return {success: true, data: result};
+    } catch (error) {
+      return {success: false, error: error.message || 'Change password failed'};
+    }
+  };
+
+  const updateUserInfo = async ({firstName, lastName}) => {
+    try {
+      // @ts-ignore
+      const result = await dispatch(
+        updateUserInfoAsync({token, firstName, lastName}),
+      ).unwrap();
+      return {success: true, data: result};
+    } catch (error) {
+      return {
+        success: false,
+        error: error.message || 'Update user info failed',
+      };
+    }
+  };
+
   return {
     // State
     user,
@@ -133,5 +163,7 @@ export const useAuth = () => {
     register,
     refreshToken,
     resetOTP,
+    changePassword,
+    updateUserInfo,
   };
 };

@@ -1,5 +1,6 @@
+/* eslint-disable prettier/prettier */
 /* eslint-disable react-native/no-inline-styles */
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Image,
   KeyboardAvoidingView,
@@ -27,12 +28,13 @@ import {
 } from '../../../images';
 import AddNewDeviceScreen from './addNewDevice';
 import WifiManager from 'react-native-wifi-reborn';
-import {readTag, removePasswordProtection} from '../../../utils/func';
-import {useUser} from '../../../store/hooks/useUser';
-import {useIsFocused} from '@react-navigation/native';
+import { readTag, removePasswordProtection } from '../../../utils/func';
+import { useUser } from '../../../store/hooks/useUser';
+import { useIsFocused } from '@react-navigation/native';
+import CommonTextInput from '../../../components/commonTextInput';
 
-const LocationDetail = ({navigation, route}) => {
-  const {checkUID, fetchProducts, deleteTag} = useUser();
+const LocationDetail = ({ navigation, route }) => {
+  const { checkUID, fetchProducts, deleteTag, updateLocation, deleteLocation } = useUser();
   const isFocused = useIsFocused();
   const _locationName = route.params?.locationName;
   const _locationData = route.params?.locationData;
@@ -43,6 +45,9 @@ const LocationDetail = ({navigation, route}) => {
   });
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isModalWifiVisible, setIsModalWifiVisible] = useState(false);
+  const [isModalSettingVisible, setIsModalSettingVisible] = useState(false);
+  const [settingType, setSettingType] = useState(null);
+  const [locationName, setLocationName] = useState('');
   const [tagData, setTagData] = useState({
     type: '',
     uid: '',
@@ -63,11 +68,11 @@ const LocationDetail = ({navigation, route}) => {
     }
   }, []);
 
-  // useEffect(()=>{
-  //   if (isFocused) {
-  //     getLocationData();
-  //   }
-  // },[isFocused])
+  useEffect(()=>{
+    if (locationData) {
+      setLocationName(locationData.name);
+    }
+  },[locationData])
 
   const getLocationData = async (isNewTag = false) => {
     await fetchProducts().then(res => {
@@ -122,10 +127,10 @@ const LocationDetail = ({navigation, route}) => {
     try {
       const currentSSID = await WifiManager.getCurrentWifiSSID();
       console.log(`Your current Wi-Fi SSID is ${currentSSID}`);
-      setWifi({SSID: currentSSID, password: ''});
+      setWifi({ SSID: currentSSID, password: '' });
     } catch (error) {
       console.log('Cannot get current SSID!', error);
-      __DEV__ && setWifi({SSID: 'abc test', password: '12345678'});
+      __DEV__ && setWifi({ SSID: 'abc test', password: '12345678' });
     }
     return;
   };
@@ -181,7 +186,7 @@ const LocationDetail = ({navigation, route}) => {
     console.log('handleDeleteProduct', item);
     let data = JSON.parse(item.data);
     console.log('data', data);
-    setModalData({...item, key: data.cardPassword});
+    setModalData({ ...item, key: data.cardPassword });
     setModalType('delete');
     setIsModalVisible(true);
   };
@@ -190,9 +195,9 @@ const LocationDetail = ({navigation, route}) => {
     console.log('handleEditProdct', item);
     let data = JSON.parse(item.data);
     console.log('data', data);
-    setTagData({uid: item.uid, type: item.type});
-    setWifi({SSID: data.ssid, password: data.password});
-    setModalData({...item, key: data.cardPassword});
+    setTagData({ uid: item.uid, type: item.type });
+    setWifi({ SSID: data.ssid, password: data.password });
+    setModalData({ ...item, key: data.cardPassword });
     setModalType('edit');
     setTimeout(() => {
       setIsModalVisible(true);
@@ -201,22 +206,22 @@ const LocationDetail = ({navigation, route}) => {
 
   const renderModalWifiContent = () => {
     return (
-      <View style={{borderTopColor: '#E2E7FB', borderTopWidth: 1}}>
-        <ScrollView style={{paddingHorizontal: 15}}>
+      <View style={{ borderTopColor: '#E2E7FB', borderTopWidth: 1 }}>
+        <ScrollView style={{ paddingHorizontal: 15 }}>
           {wifiList.map((item, index) => (
             <TouchableOpacity
-              style={{paddingVertical: 10, flexDirection: 'row'}}
+              style={{ paddingVertical: 10, flexDirection: 'row' }}
               key={index}
               onPress={() => setWifi(item)}>
               <Image
                 source={icWifiGrey}
-                style={{width: 20, height: 20, marginRight: 12}}
+                style={{ width: 20, height: 20, marginRight: 12 }}
               />
-              <Text style={{color: '#38434E', flex: 1}}>{item.SSID}</Text>
+              <Text style={{ color: '#38434E', flex: 1 }}>{item.SSID}</Text>
               {wifi?.SSID === item.SSID && (
                 <Image
                   source={icTickBlue}
-                  style={{width: 20, height: 20, marginRight: 12}}
+                  style={{ width: 20, height: 20, marginRight: 12 }}
                 />
               )}
             </TouchableOpacity>
@@ -236,7 +241,7 @@ const LocationDetail = ({navigation, route}) => {
           justifyContent: 'space-around',
         }}>
         <CommonButton
-          btnContainerStyle={{width: '48%'}}
+          btnContainerStyle={{ width: '48%' }}
           grey
           text="Đóng"
           onPress={() => {
@@ -246,7 +251,7 @@ const LocationDetail = ({navigation, route}) => {
           }}
         />
         <CommonButton
-          btnContainerStyle={{width: '48%'}}
+          btnContainerStyle={{ width: '48%' }}
           text="Chọn"
           onPress={item => {
             setIsModalWifiVisible(false);
@@ -255,6 +260,73 @@ const LocationDetail = ({navigation, route}) => {
         />
       </View>
     );
+  };
+
+  const renderModalSettingButton = () => {
+    return (
+      <View
+        style={{
+          paddingHorizontal: 15,
+          flexDirection: 'row',
+          width: '100%',
+          justifyContent: 'space-around',
+        }}>
+        <CommonButton
+          btnContainerStyle={{ width: '48%' }}
+          grey
+          text="Đóng"
+          onPress={() => {
+            setIsModalSettingVisible(false);
+            setSettingType(null);
+          }}
+        />
+        <CommonButton
+          btnContainerStyle={{ width: '48%' }}
+          text={settingType === 'delete' ? "Xóa" : "Cập nhật"}
+          red={settingType === 'delete'}
+          onPress={async() => {
+            if (settingType === 'delete') {
+              await deleteLocation(locationData._id);
+              navigation.goBack();
+            } else {
+              await updateLocation({locationId: locationData._id, locationData: {name: locationName}}).then(res => {
+                if (res.success){
+                  setLocationData(prev => ({...prev, name: locationName}));
+                }
+                setIsModalSettingVisible(false);
+                setSettingType(null);
+              });
+            }
+          }}
+        />
+      </View>
+    );
+  };
+
+  const renderModalSettingContent = () => {
+    if (settingType === 'update') {
+      return <View style={{paddingHorizontal: 15}}>
+        <CommonTextInput rightIcon={null} title={'Tên vị trí'} value={locationName} onChangeText={text => setLocationName(text)} />
+      </View>
+    }
+    return <View style={{paddingLeft: 5, paddingTop: 10}}>
+      <TouchableOpacity
+        activeOpacity={1}
+        style={{ padding: 10, flexDirection: 'row' }}
+        onPress={() => {
+          setSettingType('update')
+        }}>
+        <Text style={{ fontSize: 16, color: '#38434E', flex: 1 }}>Cập nhật thông tin</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        activeOpacity={1}
+        style={{ padding: 10, flexDirection: 'row' }}
+        onPress={() => {
+          setSettingType('delete')
+        }}>
+        <Text style={{ fontSize: 16, color: '#38434E', flex: 1 }}>Xóa vị trí</Text>
+      </TouchableOpacity>
+    </View>;
   };
   //
   const renderModalContent = () => {
@@ -296,10 +368,10 @@ const LocationDetail = ({navigation, route}) => {
   const renderModalButton = () => {
     if (modalType === 'delete') {
       return (
-        <View style={{marginTop: -60}}>
+        <View style={{ marginTop: -60 }}>
           <Text style={styles.warningTitle}>
             Bạn có chắc chắn muốn xóa sản phẩm
-            <Text style={{fontWeight: 'bold'}}>
+            <Text style={{ fontWeight: 'bold' }}>
               {'\n'}
               {modalData.name}{' '}
             </Text>{' '}
@@ -317,13 +389,13 @@ const LocationDetail = ({navigation, route}) => {
               }}
               text="Đóng"
               white={true}
-              btnContainerStyle={{flex: 1, marginRight: 10}}
+              btnContainerStyle={{ flex: 1, marginRight: 10 }}
             />
             <CommonButton
               onPress={deleteProduct}
               red={true}
               text="Xóa"
-              btnContainerStyle={{flex: 1}}
+              btnContainerStyle={{ flex: 1 }}
             />
           </View>
         </View>
@@ -342,9 +414,9 @@ const LocationDetail = ({navigation, route}) => {
             }}
             text="Đóng"
             white={true}
-            btnContainerStyle={{flex: 1, marginRight: 10}}
+            btnContainerStyle={{ flex: 1, marginRight: 10 }}
           />
-          <CommonButton text="Thêm" btnContainerStyle={{flex: 1}} />
+          <CommonButton text="Thêm" btnContainerStyle={{ flex: 1 }} />
         </View>
       );
     }
@@ -352,17 +424,20 @@ const LocationDetail = ({navigation, route}) => {
 
   return (
     <KeyboardAvoidingView
-      style={{flex: 1}}
+      style={{ flex: 1 }}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       {/* Header */}
       <CommonHeader
         title={locationData?.name || _locationData.name}
-        titleStyle={{color: '#111921'}}
+        titleStyle={{ color: '#111921' }}
         onBack={() => (_locationName ? navigation.pop(2) : navigation.goBack())}
         white={true}
         rightContent={
-          <TouchableOpacity>
-            <Image source={icSettingGrey} style={{width: 20, height: 20}} />
+          <TouchableOpacity
+            onPress={() => {
+              setIsModalSettingVisible(true);
+            }}>
+            <Image source={icSettingGrey} style={{ width: 20, height: 20 }} />
           </TouchableOpacity>
         }
       />
@@ -373,29 +448,29 @@ const LocationDetail = ({navigation, route}) => {
             onPress={() => handleEditProduct(item)}
             key={index}
             style={styles.productItem}>
-            <View style={{flex: 1, flexDirection: 'row'}}>
+            <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
               <Image
                 source={icWifiGrey}
-                style={{width: 20, height: 20, marginRight: 12}}
+                style={{ width: 20, height: 20, marginRight: 12 }}
               />
               <Text style={styles.productItemTitle}>{item.name}</Text>
             </View>
             <View style={styles.productItemRight}>
               <TouchableOpacity
-                onPress={() => navigation.navigate('ShareQR', {item})}>
+                onPress={() => navigation.navigate('ShareQR', { item })}>
                 <Image
                   source={icShare}
-                  style={{width: 18, height: 18, marginRight: 15}}
+                  style={{ width: 18, height: 18, marginRight: 25 }}
                 />
               </TouchableOpacity>
               <TouchableOpacity onPress={() => handleDeleteProduct(item)}>
                 <Image
                   source={icTrashGrey}
-                  style={{width: 20, height: 20, marginRight: 15}}
+                  style={{ width: 20, height: 20, marginRight: 20,  }}
                 />
               </TouchableOpacity>
               <TouchableOpacity onPress={() => handleEditProduct(item)}>
-                <Image source={icEditGrey} style={{width: 20, height: 20}} />
+                <Image source={icEditGrey} style={{ width: 20, height: 20 }} />
               </TouchableOpacity>
             </View>
           </TouchableOpacity>
@@ -411,7 +486,7 @@ const LocationDetail = ({navigation, route}) => {
         onPress={() => {
           setModalData(null);
           setWifi(null);
-          setTagData({uid: '', type: ''});
+          setTagData({ uid: '', type: '' });
           setModalType('readTag');
           setError('');
           setIsModalVisible(true);
@@ -423,8 +498,9 @@ const LocationDetail = ({navigation, route}) => {
         visible={isModalVisible}
         onClose={() => {
           setIsModalVisible(false);
-          setModalType('readTag');
           setLoading(false);
+          setError('');
+          setModalType('readTag');
         }}
         // header={modalType === 'addNew' ? 'Thêm Sản Phẩm' : `Sửa Sản Phẩm`}
         isWarning={modalType === 'delete' || modalType === 'readTag'}
@@ -433,8 +509,8 @@ const LocationDetail = ({navigation, route}) => {
             ? loading
               ? icLoading
               : error
-              ? icWarningColor
-              : imgScanNFC
+                ? icWarningColor
+                : imgScanNFC
             : icTrashBin
         }
         isHaveCloseBtn={
@@ -445,8 +521,8 @@ const LocationDetail = ({navigation, route}) => {
           (loading
             ? 'Đang kiểm tra thẻ NFC trên hệ thống ...'
             : error
-            ? error
-            : 'Vui lòng đặt thẻ lên khu vực quét NFC của điện thoại và chờ hoàn tất')
+              ? error
+              : 'Vui lòng đặt thẻ lên khu vực quét NFC của điện thoại và chờ hoàn tất')
         }
         content={renderModalContent()}
         bottomContent={modalType === 'delete' && renderModalButton()}
@@ -462,6 +538,19 @@ const LocationDetail = ({navigation, route}) => {
         isHaveCloseBtn={false}
         content={renderModalWifiContent()}
         bottomContent={renderModalWifiButton()}
+      />
+      <CommonModal
+        visible={isModalSettingVisible}
+        header={settingType === 'update' ? 'Cập nhật thông tin' : 'Cài đặt'}
+        onClose={() => {
+          setIsModalSettingVisible(false);
+          setSettingType(null);
+        }}
+        // isHaveCloseBtn={false}
+        content={renderModalSettingContent()}
+        isWarning={settingType === 'delete'}
+        warningTitle={settingType === 'delete' ? 'Bạn có chắc chắn muốn xóa vị trí này không?' : 'Bạn có chắc chắn muốn cập nhật thông tin vị trí này không?'}
+        bottomContent={settingType ? renderModalSettingButton() : null}
       />
     </KeyboardAvoidingView>
   );

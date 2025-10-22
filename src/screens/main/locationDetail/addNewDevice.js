@@ -39,7 +39,7 @@ const AddNewDeviceScreen = ({ navigation, route, setIsModalVisible, wifi, locati
     }
   }, [wifi, tagData])
 
-  const handleWrite = async () => {
+  const handleWrite = async (isEdit = false) => {
     try {
       let data = { ...wifiData, productName, cardPassword, uri }
       console.log('handleWrite', data);
@@ -212,7 +212,7 @@ const AddNewDeviceScreen = ({ navigation, route, setIsModalVisible, wifi, locati
               }
               onPress={() => {
                 Platform.OS === 'android' && setStep(2);
-                handleWrite();
+                handleWrite(isEdit);
               }}
               text={isEdit ? `Cập Nhật` : `Thêm`} btnContainerStyle={{ flex: 1 }} />
             {/* <CommonButton

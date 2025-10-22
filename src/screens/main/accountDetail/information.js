@@ -9,16 +9,89 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  Alert,
 } from 'react-native';
 import CommonHeader from '../../../components/commonHeader';
 import CommonButton from '../../../components/commonButton';
 import CommonTextInput from '../../../components/commonTextInput';
+import CommonLoading from '../../../components/commonLoading';
+import {updateUserInfoAsync} from '../../../store/slices/authSlice';
+import {useDispatch} from 'react-redux';
 
 const AccountInformation = ({navigation}) => {
-  const [locationName, setLocationName] = useState('');
+  const dispatch = useDispatch();
+  const [infor, setInfor] = useState({
+    firstName: '',
+    lastName: '',
+  });
+  const [loading, setLoading] = useState(false);
+  const [loadingText, setLoadingText] = useState('Đang tải ...');
+
+  // Name validation function
+  const validateName = name => {
+    const trimmedName = name.trim();
+    return {
+      hasContent: trimmedName.length > 0,
+      hasMinLength: trimmedName.length >= 2,
+      hasOnlyLetters: /^[a-zA-ZÀ-ỹ\s]+$/.test(trimmedName),
+      isValid: trimmedName.length >= 2 && /^[a-zA-ZÀ-ỹ\s]+$/.test(trimmedName),
+    };
+  };
+
+  // Validate all fields
+  const validateForm = () => {
+    const newErrors = {};
+
+    // Validate first name
+    const firstNameValidation = validateName(infor.firstName);
+    if (!infor.firstName.trim()) {
+      newErrors.firstName = 'Vui lòng nhập họ';
+    } else if (!firstNameValidation.isValid) {
+      let errorMsg = 'Họ phải có:';
+      if (!firstNameValidation.hasMinLength) errorMsg += ' ít nhất 2 ký tự,';
+      if (!firstNameValidation.hasOnlyLetters) errorMsg += ' chỉ chứa chữ cái';
+      newErrors.firstName = errorMsg;
+    }
+
+    // Validate last name
+    const lastNameValidation = validateName(infor.lastName);
+    if (!infor.lastName.trim()) {
+      newErrors.lastName = 'Vui lòng nhập tên';
+    } else if (!lastNameValidation.isValid) {
+      let errorMsg = 'Tên phải có:';
+      if (!lastNameValidation.hasMinLength) errorMsg += ' ít nhất 2 ký tự,';
+      if (!lastNameValidation.hasOnlyLetters) errorMsg += ' chỉ chứa chữ cái';
+      newErrors.lastName = errorMsg;
+    }
+
+    return newErrors;
+  };
 
   const handleContinue = () => {
-    navigation.navigate('WebsiteConfig');
+    let error = validateForm();
+    if (Object.keys(error).length > 0) {
+      Alert.alert('Lỗi xác thực', Object.values(error)[0]);
+      return;
+    }
+    setLoading(true);
+    setLoadingText('Đang cập nhật thông tin...');
+    dispatch(
+      updateUserInfoAsync({
+        firstName: infor.firstName,
+        lastName: infor.lastName,
+      }),
+    ).then(res => {
+      if (res.payload.username) {
+        setLoadingText('Cập nhật thông tin thành công !');
+        setTimeout(() => {
+          setLoading(false);
+          navigation.goBack();
+        }, 2000);
+      } else {
+        setLoading(false);
+        Alert.alert('Thông báo', res.payload.message);
+      }
+    });
   };
 
   return (
@@ -26,6 +99,11 @@ const AccountInformation = ({navigation}) => {
       style={{flex: 1}}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       {/* Header */}
+      <CommonLoading
+        visible={loading}
+        text={loadingText}
+        isComplete={loadingText === 'Cập nhật thông tin thành công !'}
+      />
       <CommonHeader
         title="Thông Tin Cá Nhân"
         titleStyle={{color: '#111921'}}
@@ -36,14 +114,18 @@ const AccountInformation = ({navigation}) => {
       <ScrollView style={styles.formContainer}>
         {/* Tên vị trí */}
         <CommonTextInput
-          title={'Họ và tên'}
+          title={'Họ'}
           style={{marginBottom: 15}}
           rightIcon={null}
+          value={infor.firstName}
+          onChangeText={txt => setInfor(prev => ({...prev, firstName: txt}))}
         />
         <CommonTextInput
-          title={'Email'}
+          title={'Tên'}
           style={{marginBottom: 15}}
           rightIcon={null}
+          value={infor.lastName}
+          onChangeText={txt => setInfor(prev => ({...prev, lastName: txt}))}
         />
         {/* Cấu hình WiFi */}
         <CommonButton

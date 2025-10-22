@@ -32,16 +32,16 @@ const options = [
     screenName: 'AccountInformation',
   },
   {icon: icKeyGrey, label: 'Đổi mật khẩu', screenName: 'ChangePassword'},
-  {
-    icon: icContactInfo,
-    label: 'Thông tin liên hệ',
-    screenName: 'ContactInformation',
-  },
+  // {
+  //   icon: icContactInfo,
+  //   label: 'Thông tin liên hệ',
+  //   screenName: 'ContactInformation',
+  // },
   {icon: icLogoutGrey, label: 'Đăng xuất', screenName: 'Logout'},
 ];
 
 const AccountScreen = ({navigation}) => {
-  const {logout} = useAuth();
+  const {logout, user} = useAuth();
   const [loading, setLoading] = useState(false);
 
   const handleLogout = async () => {
@@ -72,8 +72,8 @@ const AccountScreen = ({navigation}) => {
       <View style={{height: 44}} />
       {/* Avatar and user info */}
       <View style={styles.avatarContainer}>
-        <Image source={user.avatar} style={styles.avatar} />
-        <Text style={styles.userName}>{user.name}</Text>
+        <Image source={user.avatar || icSampleAvatar} style={styles.avatar} />
+        <Text style={styles.userName}>{user.username}</Text>
         <Text style={styles.userEmail}>{user.email}</Text>
       </View>
       {/* Options */}
