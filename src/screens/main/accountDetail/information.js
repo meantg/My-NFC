@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -17,15 +17,26 @@ import CommonTextInput from '../../../components/commonTextInput';
 import CommonLoading from '../../../components/commonLoading';
 import {updateUserInfoAsync} from '../../../store/slices/authSlice';
 import {useDispatch} from 'react-redux';
+import {useAuth} from '../../../store/hooks/useAuth';
 
 const AccountInformation = ({navigation}) => {
   const dispatch = useDispatch();
+  const {user} = useAuth();
   const [infor, setInfor] = useState({
     firstName: '',
     lastName: '',
   });
   const [loading, setLoading] = useState(false);
   const [loadingText, setLoadingText] = useState('Đang tải ...');
+
+  useEffect(() => {
+    if (user) {
+      setInfor({
+        firstName: user?.firstName,
+        lastName: user?.lastName,
+      });
+    }
+  }, [user]);
 
   // Name validation function
   const validateName = name => {
@@ -48,8 +59,12 @@ const AccountInformation = ({navigation}) => {
       newErrors.firstName = 'Vui lòng nhập họ';
     } else if (!firstNameValidation.isValid) {
       let errorMsg = 'Họ phải có:';
-      if (!firstNameValidation.hasMinLength) errorMsg += ' ít nhất 2 ký tự,';
-      if (!firstNameValidation.hasOnlyLetters) errorMsg += ' chỉ chứa chữ cái';
+      if (!firstNameValidation.hasMinLength) {
+        errorMsg += ' ít nhất 2 ký tự,';
+      }
+      if (!firstNameValidation.hasOnlyLetters) {
+        errorMsg += ' chỉ chứa chữ cái';
+      }
       newErrors.firstName = errorMsg;
     }
 
@@ -59,8 +74,12 @@ const AccountInformation = ({navigation}) => {
       newErrors.lastName = 'Vui lòng nhập tên';
     } else if (!lastNameValidation.isValid) {
       let errorMsg = 'Tên phải có:';
-      if (!lastNameValidation.hasMinLength) errorMsg += ' ít nhất 2 ký tự,';
-      if (!lastNameValidation.hasOnlyLetters) errorMsg += ' chỉ chứa chữ cái';
+      if (!lastNameValidation.hasMinLength) {
+        errorMsg += ' ít nhất 2 ký tự,';
+      }
+      if (!lastNameValidation.hasOnlyLetters) {
+        errorMsg += ' chỉ chứa chữ cái';
+      }
       newErrors.lastName = errorMsg;
     }
 
@@ -168,7 +187,6 @@ const styles = StyleSheet.create({
   },
   formContainer: {
     padding: 16,
-    marginTop: 8,
     backgroundColor: '#f0f5fc',
   },
   sectionLabel: {

@@ -15,6 +15,7 @@ import {
   resetOTPAsync,
   changeUserPasswordAsync,
   updateUserInfoAsync,
+  forgotUserPasswordAsync,
 } from '../slices/authSlice';
 
 export const useAuth = () => {
@@ -147,6 +148,16 @@ export const useAuth = () => {
     }
   };
 
+  const forgotPassword = async ({email}) => {
+    try {
+      // @ts-ignore
+      const result = await dispatch(forgotUserPasswordAsync({email})).unwrap();
+      return {success: true, data: result};
+    } catch (error) {
+      return {success: false, error: error.message || 'Forgot password failed'};
+    }
+  };
+
   return {
     // State
     user,
@@ -165,5 +176,6 @@ export const useAuth = () => {
     resetOTP,
     changePassword,
     updateUserInfo,
+    forgotPassword,
   };
 };

@@ -27,7 +27,7 @@ export default function ShareQR({navigation, route}) {
   const password = data.password;
   const wifiData = `WIFI:T:WPA;S:${ssid};P:${password};;`;
   const [svgData, setSvgData] = useState({});
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     handleSVGWifi();
@@ -86,7 +86,11 @@ export default function ShareQR({navigation, route}) {
       });
     } catch (error) {
       console.log('handleCapture error', error);
-      Alert.alert('❌ Error', error.message);
+      Alert.alert(
+        '❌ Thông báo',
+        'Đã xảy ra lỗi trong quá trình khởi tạo ảnh QR, vui lòng thử lại !',
+        [{text: 'OK', onPress: () => navigation.goBack()}],
+      );
     }
     // try {
     //   const uri = await viewShotRef.current?.capture();

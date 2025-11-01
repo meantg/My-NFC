@@ -125,7 +125,7 @@ export const updateUserProfile = async ({firstName, lastName}) => {
 export const forgotUserPassword = async ({email}) => {
   let response;
   try {
-    response = await apiClient.post('/auth/forgot-password', {email});
+    response = await apiClient.post('/v1/users/reset-password', {email});
     return response.data;
   } catch (error) {
     console.log('API Fetch Error:', error);

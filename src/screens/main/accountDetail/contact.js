@@ -1,18 +1,12 @@
 import React, {useState} from 'react';
 import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  TextInput,
-  Image,
   KeyboardAvoidingView,
   Platform,
-  ScrollView,
+  StyleSheet,
+  Text,
+  View,
 } from 'react-native';
 import CommonHeader from '../../../components/commonHeader';
-import CommonButton from '../../../components/commonButton';
-import CommonTextInput from '../../../components/commonTextInput';
 
 const ContactInformation = ({navigation}) => {
   const [locationName, setLocationName] = useState('');

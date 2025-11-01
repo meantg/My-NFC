@@ -72,9 +72,11 @@ const AccountScreen = ({navigation}) => {
       <View style={{height: 44}} />
       {/* Avatar and user info */}
       <View style={styles.avatarContainer}>
-        <Image source={user.avatar || icSampleAvatar} style={styles.avatar} />
-        <Text style={styles.userName}>{user.username}</Text>
-        <Text style={styles.userEmail}>{user.email}</Text>
+        <Image source={user?.avatar || icSampleAvatar} style={styles.avatar} />
+        <Text style={styles.userName}>
+          {user?.firstName} {user?.lastName}
+        </Text>
+        <Text style={styles.userEmail}>{user?.email}</Text>
       </View>
       {/* Options */}
       <View style={styles.optionsContainer}>

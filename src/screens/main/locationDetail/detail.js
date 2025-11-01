@@ -2,6 +2,7 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, { useEffect, useState } from 'react';
 import {
+  Alert,
   Image,
   KeyboardAvoidingView,
   Platform,
@@ -32,6 +33,7 @@ import { readTag, removePasswordProtection } from '../../../utils/func';
 import { useUser } from '../../../store/hooks/useUser';
 import { useIsFocused } from '@react-navigation/native';
 import CommonTextInput from '../../../components/commonTextInput';
+import { LocationItem } from './locationItem';
 
 const LocationDetail = ({ navigation, route }) => {
   const { checkUID, fetchProducts, deleteTag, updateLocation, deleteLocation } = useUser();
@@ -68,11 +70,11 @@ const LocationDetail = ({ navigation, route }) => {
     }
   }, []);
 
-  useEffect(()=>{
+  useEffect(() => {
     if (locationData) {
       setLocationName(locationData.name);
     }
-  },[locationData])
+  }, [locationData])
 
   const getLocationData = async (isNewTag = false) => {
     await fetchProducts().then(res => {
@@ -135,10 +137,14 @@ const LocationDetail = ({ navigation, route }) => {
     return;
   };
 
-  const handleReadTag = async () => {
+  const handleReadTag = async (tagId) => {
     await readTag().then(async res => {
       console.log('handleReadTag', res);
       if (res.serialNumber) {
+        if (tagId && tagId !== res.serialNumber) {
+          setError('Thẻ NFC bạn quét không đúng, vui lòng thử thẻ NFC khác !');
+          return;
+        }
         setLoading(true);
         await checkUID(res.serialNumber).then(res => {
           console.log('checkUID', res);
@@ -192,15 +198,16 @@ const LocationDetail = ({ navigation, route }) => {
   };
 
   const handleEditProduct = item => {
-    console.log('handleEditProdct', item);
+    console.log('handleEditProduct', item);
     let data = JSON.parse(item.data);
     console.log('data', data);
     setTagData({ uid: item.uid, type: item.type });
     setWifi({ SSID: data.ssid, password: data.password });
     setModalData({ ...item, key: data.cardPassword });
-    setModalType('edit');
+    setModalType('readTag');
     setTimeout(() => {
       setIsModalVisible(true);
+      handleReadTag(item.uid);
     }, 300);
   };
 
@@ -284,14 +291,28 @@ const LocationDetail = ({ navigation, route }) => {
           btnContainerStyle={{ width: '48%' }}
           text={settingType === 'delete' ? "Xóa" : "Cập nhật"}
           red={settingType === 'delete'}
-          onPress={async() => {
+          onPress={async () => {
             if (settingType === 'delete') {
-              await deleteLocation(locationData._id);
-              navigation.goBack();
+              await deleteLocation(locationData._id).then(res => {
+                console.log('res', res);
+                if (res.success) {
+                  navigation.goBack();
+                } else {
+                  setIsModalSettingVisible(false);
+                  setSettingType(null);
+                  Alert.alert(
+                    "Thông báo",
+                    res.error,
+                    [
+                      { text: "OK", onPress: () => console.log("OK Pressed") }
+                    ]
+                  );
+                }
+              });
             } else {
-              await updateLocation({locationId: locationData._id, locationData: {name: locationName}}).then(res => {
-                if (res.success){
-                  setLocationData(prev => ({...prev, name: locationName}));
+              await updateLocation({ locationId: locationData._id, locationData: { name: locationName } }).then(res => {
+                if (res.success) {
+                  setLocationData(prev => ({ ...prev, name: locationName }));
                 }
                 setIsModalSettingVisible(false);
                 setSettingType(null);
@@ -305,11 +326,11 @@ const LocationDetail = ({ navigation, route }) => {
 
   const renderModalSettingContent = () => {
     if (settingType === 'update') {
-      return <View style={{paddingHorizontal: 15}}>
+      return <View style={{ paddingHorizontal: 15 }}>
         <CommonTextInput rightIcon={null} title={'Tên vị trí'} value={locationName} onChangeText={text => setLocationName(text)} />
       </View>
     }
-    return <View style={{paddingLeft: 5, paddingTop: 10}}>
+    return <View style={{ paddingLeft: 5, paddingTop: 10 }}>
       <TouchableOpacity
         activeOpacity={1}
         style={{ padding: 10, flexDirection: 'row' }}
@@ -444,36 +465,15 @@ const LocationDetail = ({ navigation, route }) => {
       {/* Form */}
       <ScrollView style={styles.formContainer}>
         {locationData?.products?.map((item, index) => (
-          <TouchableOpacity
-            onPress={() => handleEditProduct(item)}
+          <LocationItem
             key={index}
-            style={styles.productItem}>
-            <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-              <Image
-                source={icWifiGrey}
-                style={{ width: 20, height: 20, marginRight: 12 }}
-              />
-              <Text style={styles.productItemTitle}>{item.name}</Text>
-            </View>
-            <View style={styles.productItemRight}>
-              <TouchableOpacity
-                onPress={() => navigation.navigate('ShareQR', { item })}>
-                <Image
-                  source={icShare}
-                  style={{ width: 18, height: 18, marginRight: 25 }}
-                />
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => handleDeleteProduct(item)}>
-                <Image
-                  source={icTrashGrey}
-                  style={{ width: 20, height: 20, marginRight: 20,  }}
-                />
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => handleEditProduct(item)}>
-                <Image source={icEditGrey} style={{ width: 20, height: 20 }} />
-              </TouchableOpacity>
-            </View>
-          </TouchableOpacity>
+            index={index}
+            handleEditProduct={handleEditProduct}
+            handleDeleteProduct={handleDeleteProduct}
+            item={item}
+            styles={styles}
+            navigation={navigation}
+          />
         ))}
       </ScrollView>
       <CommonButton
@@ -571,8 +571,6 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   productItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
     padding: 16,
     backgroundColor: '#fff',
     borderRadius: 12,

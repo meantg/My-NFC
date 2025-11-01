@@ -16,8 +16,11 @@ import CommonDialog from '../../components/commonDialog';
 import {icBack, imgSentResetPasswordDone} from '../../images';
 import {validateEmail} from '../../utils/func';
 import {commonStyles} from '../../utils/styles';
+import {useDispatch} from 'react-redux';
+import {forgotUserPasswordAsync} from '../../store/slices/authSlice';
 
 const ForgotPasswordScreen = ({navigation}) => {
+  const dispatch = useDispatch();
   const [email, setEmail] = useState('');
   const [dialog, setDialog] = useState({
     visible: false,
@@ -61,24 +64,24 @@ const ForgotPasswordScreen = ({navigation}) => {
       });
       return;
     }
-
     // Add your password reset logic here
-    console.log('Password reset attempt for:', email);
-
-    // For now, just show a success dialog
-    // showDialog({
-    //   title: 'Reset Link Sent',
-    //   message:
-    //     'If an account with this email exists, you will receive a password reset link shortly.',
-    //   type: 'success',
-    //   buttonText: 'OK',
-    //   onPress: () => navigation.navigate('Login'),
-    // });
-    setIsSentRequest(true);
+    dispatch(forgotUserPasswordAsync({email})).then(res => {
+      if (res.payload.message === 'ok') {
+        setIsSentRequest(true);
+      } else {
+        showDialog({
+          title: 'Lỗi',
+          message:
+            'Đã xảy ra lỗi khi yêu cầu tạo lại mật khẩu, vui lòng thử lại !',
+          type: 'error',
+        });
+        return;
+      }
+    });
   };
 
   const handleBackToLogin = () => {
-    navigation.navigate('Login');
+    navigation.goBack('');
   };
 
   return (

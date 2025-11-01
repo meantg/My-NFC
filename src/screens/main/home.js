@@ -121,7 +121,9 @@ const HomeScreen = ({navigation}) => {
   };
 
   const renderBottomContent = () => {
-    if (readTagStep == 2) return null;
+    if (readTagStep == 2) {
+      return null;
+    }
     return (
       <View style={{paddingHorizontal: 15, marginBottom: 40}}>
         <CommonButton
@@ -129,7 +131,7 @@ const HomeScreen = ({navigation}) => {
           text={
             readTagStep == 3
               ? error
-                ? `Thử lại`
+                ? 'Thử lại'
                 : 'Tiếp tục thêm thẻ NFC'
               : 'Thêm'
           }
@@ -215,13 +217,16 @@ const HomeScreen = ({navigation}) => {
       <View style={styles.header}>
         <Image source={NextapLogo} style={styles.headerIcon} />
         <Text style={styles.headerTitle}>
-          🤚 XIN CHÀO {user?.displayName?.toUpperCase()} !
+          🤚 XIN CHÀO {user?.firstName?.toUpperCase()}{' '}
+          {user?.lastName?.toUpperCase()} !
         </Text>
-        <TouchableOpacity
-          style={styles.addNewTagAdmin}
-          onPress={handleAddNewTag}>
-          <Image source={icAddTagGrey} style={{width: 24, height: 24}} />
-        </TouchableOpacity>
+        {user?.isAdmin && (
+          <TouchableOpacity
+            style={styles.addNewTagAdmin}
+            onPress={handleAddNewTag}>
+            <Image source={icAddTagGrey} style={{width: 24, height: 24}} />
+          </TouchableOpacity>
+        )}
       </View>
       {renderProduct()}
       <CommonModal
@@ -240,7 +245,7 @@ const HomeScreen = ({navigation}) => {
         warningTitle={
           readTagStep == 3
             ? error
-              ? `Đã xảy ra lỗi khi thêm thẻ NFC,\nvui lòng thử lại `
+              ? 'Đã xảy ra lỗi khi thêm thẻ NFC,\nvui lòng thử lại '
               : 'Thêm mới thẻ NFC thành công'
             : loading
             ? 'Đang khởi tạo thẻ NFC ...'
@@ -420,7 +425,7 @@ const styles = StyleSheet.create({
   productHeaderTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#13B26B',
+    color: 'black',
     letterSpacing: 0.5,
   },
   productHeaderSubtitle: {

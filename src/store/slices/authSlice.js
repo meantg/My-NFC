@@ -9,6 +9,7 @@ import {
   resetOTP,
   updateUserProfile,
   changeUserPassword,
+  forgotUserPassword,
 } from '../api/authApi';
 import {tokenService} from '../../services/apiService';
 
@@ -185,6 +186,24 @@ export const updateUserInfoAsync = createAsyncThunk(
       return rejectWithValue({
         success: false,
         message: error.message || 'Update user information failed',
+      });
+    }
+  },
+);
+
+export const forgotUserPasswordAsync = createAsyncThunk(
+  'auth/forgetUserPassword',
+  async ({email}, {rejectWithValue}) => {
+    try {
+      const response = await forgotUserPassword({email});
+      if (response.success === false) {
+        return rejectWithValue(response);
+      }
+      return response;
+    } catch (error) {
+      return rejectWithValue({
+        success: false,
+        message: error.message || 'Forgot user password failed',
       });
     }
   },
