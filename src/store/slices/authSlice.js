@@ -311,6 +311,13 @@ const authSlice = createSlice({
         state.isLoading = false;
         // @ts-ignore
         state.error = action.payload?.message || 'Failed to fetch profile';
+      })
+      .addCase(updateUserInfoAsync.fulfilled, (state, action) => {
+        state.user = {
+          ...state.user,
+          firstName: action.payload.firstName,
+          lastName: action.payload.lastName,
+        };
       });
   },
 });

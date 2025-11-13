@@ -184,7 +184,7 @@ const AddNewDeviceScreen = ({ navigation, route, setIsModalVisible, wifi, locati
             </TouchableOpacity>
           </View>
           <CommonTextInput rightIcon={null} title={'Tên sản phẩm'} value={productName} onChangeText={text => setProductName(text)} />
-          <CommonTextInput maxLength={4} rightIcon={icEye} isPassword title={'Mật khẩu thẻ (4 ký tự)'} value={cardPassword} onChangeText={text => setCardPassword(text)} />
+          <CommonTextInput editable={!isEdit} maxLength={4} rightIcon={icEye} isPassword title={'Mật khẩu thẻ (4 ký tự)'} value={cardPassword} onChangeText={text => setCardPassword(text)} />
           {renderInputs()}
           <View
             style={{

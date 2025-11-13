@@ -1,5 +1,5 @@
 /* eslint-disable react-native/no-inline-styles */
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   FlatList,
   Image,
@@ -24,17 +24,17 @@ import {
   imgScanNFC,
   NextapLogo,
 } from '../../images';
-import {commonStyles} from '../../utils/styles';
-import {useAuth} from '../../store/hooks/useAuth';
-import {useUser} from '../../store/hooks/useUser';
-import {useIsFocused} from '@react-navigation/native';
+import { commonStyles } from '../../utils/styles';
+import { useAuth } from '../../store/hooks/useAuth';
+import { useUser } from '../../store/hooks/useUser';
+import { useIsFocused } from '@react-navigation/native';
 import CommonModal from '../../components/commonModal';
 import CommonButton from '../../components/commonButton';
-import {readTag} from '../../utils/func';
+import { readTag } from '../../utils/func';
 
-const HomeScreen = ({navigation}) => {
-  const {user} = useAuth();
-  const {fetchProducts, adminCreateTag} = useUser();
+const HomeScreen = ({ navigation }) => {
+  const { user } = useAuth();
+  const { fetchProducts, adminCreateTag } = useUser();
   const isFocused = useIsFocused();
   const [lsLocation, setLsLocation] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
@@ -77,8 +77,8 @@ const HomeScreen = ({navigation}) => {
             _id: '1',
             name: 'ĐẠI SẢNH',
             products: [
-              {id: 1, name: 'Wifi A', key: 'abcd1234'},
-              {id: 2, name: 'Cổng chào', key: '123456789'},
+              { id: 1, name: 'Wifi A', key: 'abcd1234' },
+              { id: 2, name: 'Cổng chào', key: '123456789' },
             ],
           },
         ]);
@@ -88,30 +88,30 @@ const HomeScreen = ({navigation}) => {
 
   const renderModalContent = () => {
     return (
-      <View style={{padding: 15}}>
-        <Text style={{fontSize: 16, color: '#38434E'}}>Loại sản phẩm</Text>
-        <View style={{flexDirection: 'row', marginTop: 10}}>
+      <View style={{ padding: 15 }}>
+        <Text style={{ fontSize: 16, color: '#38434E' }}>Loại sản phẩm</Text>
+        <View style={{ flexDirection: 'row', marginTop: 10 }}>
           <TouchableOpacity
             onPress={() => setDeviceType('wifi')}
-            style={{flexDirection: 'row', alignItems: 'center', flex: 1}}>
+            style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
             <Image
               source={deviceType === 'wifi' ? icRadioSelected : icRadioUnSelect}
-              style={{width: 20, height: 20}}
+              style={{ width: 20, height: 20 }}
             />
-            <Text style={{fontSize: 16, color: '#38434E', marginLeft: 10}}>
+            <Text style={{ fontSize: 16, color: '#38434E', marginLeft: 10 }}>
               Wifi
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
             onPress={() => setDeviceType('website')}
-            style={{flexDirection: 'row', alignItems: 'center', flex: 1}}>
+            style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
             <Image
               source={
                 deviceType === 'website' ? icRadioSelected : icRadioUnSelect
               }
-              style={{width: 20, height: 20}}
+              style={{ width: 20, height: 20 }}
             />
-            <Text style={{fontSize: 16, color: '#38434E', marginLeft: 10}}>
+            <Text style={{ fontSize: 16, color: '#38434E', marginLeft: 10 }}>
               Website
             </Text>
           </TouchableOpacity>
@@ -125,7 +125,7 @@ const HomeScreen = ({navigation}) => {
       return null;
     }
     return (
-      <View style={{paddingHorizontal: 15, marginBottom: 40}}>
+      <View style={{ paddingHorizontal: 15, marginBottom: 40 }}>
         <CommonButton
           onPress={handleReadNFC}
           text={
@@ -135,7 +135,7 @@ const HomeScreen = ({navigation}) => {
                 : 'Tiếp tục thêm thẻ NFC'
               : 'Thêm'
           }
-          btnContainerStyle={{flex: 1}}
+          btnContainerStyle={{ flex: 1 }}
         />
       </View>
     );
@@ -146,7 +146,7 @@ const HomeScreen = ({navigation}) => {
   };
 
   const handleOpenDeviceDetail = (item, isAdd) => {
-    navigation.navigate('LocationDetail', {locationData: item, isAdd});
+    navigation.navigate('LocationDetail', { locationData: item, isAdd });
   };
 
   const renderProduct = () => {
@@ -155,8 +155,8 @@ const HomeScreen = ({navigation}) => {
       title: 'ĐẠI SẢNH',
       count: 2,
       products: [
-        {id: '1', name: 'Wifi A'},
-        {id: '2', name: 'Cổng chào'},
+        { id: '1', name: 'Wifi A' },
+        { id: '2', name: 'Cổng chào' },
       ],
     };
     return (
@@ -168,18 +168,18 @@ const HomeScreen = ({navigation}) => {
           overflow: 'hidden',
         }}
         showsVerticalScrollIndicator={false}
-        ListFooterComponent={<View style={{paddingBottom: 100}} />}
-        renderItem={({item}) => (
+        ListFooterComponent={<View style={{ paddingBottom: 100 }} />}
+        renderItem={({ item }) => (
           <TouchableOpacity
             key={item._id}
             onPress={() => handleOpenDeviceDetail(item)}
             style={styles.homeItemContainer}>
             <LinearGradient
               colors={['#EAF6FF', '#D0E8FF']}
-              start={{x: 0, y: 0}}
-              end={{x: 1, y: 0}}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
               style={styles.productHeader}>
-              <View style={{flex: 1}}>
+              <View style={{ flex: 1 }}>
                 <Text style={styles.productHeaderTitle}>{item.name}</Text>
                 <Text style={styles.productHeaderSubtitle}>
                   {item.products?.length} sản phẩm
@@ -188,19 +188,19 @@ const HomeScreen = ({navigation}) => {
               <TouchableOpacity
                 onPress={() => handleOpenDeviceDetail(item)}
                 style={styles.productHeaderIconBtn}>
-                <Image source={icEditGrey} style={{width: 24, height: 24}} />
+                <Image source={icEditGrey} style={{ width: 24, height: 24 }} />
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => handleOpenDeviceDetail(item, true)}
                 style={styles.productHeaderIconBtn}>
-                <Image source={icAddGrey} style={{width: 24, height: 24}} />
+                <Image source={icAddGrey} style={{ width: 24, height: 24 }} />
               </TouchableOpacity>
             </LinearGradient>
             {item.products.map((item, idx) => (
               <View key={item.id} style={styles.productRow}>
                 <Image
                   source={icWifiGrey}
-                  style={{width: 24, height: 24, marginRight: 8}}
+                  style={{ width: 24, height: 24, marginRight: 8 }}
                 />
                 <Text style={styles.productRowText}>{item.name}</Text>
               </View>
@@ -224,9 +224,14 @@ const HomeScreen = ({navigation}) => {
           <TouchableOpacity
             style={styles.addNewTagAdmin}
             onPress={handleAddNewTag}>
-            <Image source={icAddTagGrey} style={{width: 24, height: 24}} />
+            <Image source={icAddTagGrey} style={{ width: 24, height: 24 }} />
           </TouchableOpacity>
         )}
+        <TouchableOpacity
+          style={styles.addNewTagAdmin}
+          onPress={handleAddNewTag}>
+          <Image source={icAddTagGrey} style={{ width: 24, height: 24 }} />
+        </TouchableOpacity>
       </View>
       {renderProduct()}
       <CommonModal
@@ -239,8 +244,8 @@ const HomeScreen = ({navigation}) => {
               ? icWarningColor
               : icCreateUIDone
             : loading
-            ? icLoading
-            : imgScanNFC
+              ? icLoading
+              : imgScanNFC
         }
         warningTitle={
           readTagStep == 3
@@ -248,8 +253,8 @@ const HomeScreen = ({navigation}) => {
               ? 'Đã xảy ra lỗi khi thêm thẻ NFC,\nvui lòng thử lại '
               : 'Thêm mới thẻ NFC thành công'
             : loading
-            ? 'Đang khởi tạo thẻ NFC ...'
-            : 'Vui lòng đặt thẻ lên khu vực quét NFC của điện thoại và chờ hoàn tất'
+              ? 'Đang khởi tạo thẻ NFC ...'
+              : 'Vui lòng đặt thẻ lên khu vực quét NFC của điện thoại và chờ hoàn tất'
         }
         content={renderModalContent()}
         bottomContent={renderBottomContent()}
@@ -372,7 +377,7 @@ const styles = StyleSheet.create({
     zIndex: 10,
     elevation: 4,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 4,
   },

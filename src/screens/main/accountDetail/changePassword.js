@@ -17,6 +17,8 @@ import CommonTextInput from '../../../components/commonTextInput';
 import {useDispatch} from 'react-redux';
 import {changeUserPasswordAsync} from '../../../store/slices/authSlice';
 import CommonLoading from '../../../components/commonLoading';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { LOCAL_STORAGE_KEY } from '../../../utils/const';
 
 const ChangePassword = ({navigation}) => {
   const dispatch = useDispatch();
@@ -84,14 +86,16 @@ const ChangePassword = ({navigation}) => {
         currentPassword: password.current,
         newPassword: password.newPassword,
       }),
-    ).then(res => {
+    ).then(async res => {
       console.log('changeUserPasswordAsync', res);
       if (res.payload.username) {
         setLoadingText('Đổi mật khẩu thành công !');
+        await AsyncStorage.removeItem(LOCAL_STORAGE_KEY.AUTH_TOKEN);
+        await AsyncStorage.removeItem(LOCAL_STORAGE_KEY.LOGIN_INFOR);
         setTimeout(() => {
           setLoading(false);
-          navigation.goBack();
-        }, 2000);
+          navigation.replace('Authentication');
+        }, 1000);
       } else {
         setLoading(false);
         Alert.alert('Thông báo', res.payload.message);

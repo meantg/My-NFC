@@ -74,7 +74,7 @@ const LocationDetail = ({ navigation, route }) => {
     if (locationData) {
       setLocationName(locationData.name);
     }
-  }, [locationData])
+  }, [locationData]);
 
   const getLocationData = async (isNewTag = false) => {
     await fetchProducts().then(res => {
@@ -86,7 +86,7 @@ const LocationDetail = ({ navigation, route }) => {
           if (isNewTag) {
             setTimeout(() => {
               navigation.navigate('ShareQR', {
-                item: findLocation.products[0],
+                item: findLocation.products[findLocation.products.length - 1],
               });
             }, 500);
           }
@@ -149,7 +149,7 @@ const LocationDetail = ({ navigation, route }) => {
         await checkUID(res.serialNumber).then(res => {
           console.log('checkUID', res);
           if (res.success) {
-            setModalType('addNew');
+            setModalType(tagId ? 'edit' : 'addNew');
             setLoading(false);
             setTagData({
               uid: res.data.uid,
@@ -181,6 +181,8 @@ const LocationDetail = ({ navigation, route }) => {
             .catch(err => {
               console.log('deleteProduct error', err);
             });
+        } else {
+          setError('Đã xảy ra lỗi trong quá trình xóa thẻ NFC, vui lòng thử lại !');
         }
       })
       .catch(err => {
@@ -289,7 +291,7 @@ const LocationDetail = ({ navigation, route }) => {
         />
         <CommonButton
           btnContainerStyle={{ width: '48%' }}
-          text={settingType === 'delete' ? "Xóa" : "Cập nhật"}
+          text={settingType === 'delete' ? 'Xóa' : 'Cập nhật'}
           red={settingType === 'delete'}
           onPress={async () => {
             if (settingType === 'delete') {
@@ -301,10 +303,10 @@ const LocationDetail = ({ navigation, route }) => {
                   setIsModalSettingVisible(false);
                   setSettingType(null);
                   Alert.alert(
-                    "Thông báo",
+                    'Thông báo',
                     res.error,
                     [
-                      { text: "OK", onPress: () => console.log("OK Pressed") }
+                      { text: 'OK', onPress: () => console.log('OK Pressed') },
                     ]
                   );
                 }
@@ -328,14 +330,14 @@ const LocationDetail = ({ navigation, route }) => {
     if (settingType === 'update') {
       return <View style={{ paddingHorizontal: 15 }}>
         <CommonTextInput rightIcon={null} title={'Tên vị trí'} value={locationName} onChangeText={text => setLocationName(text)} />
-      </View>
+      </View>;
     }
     return <View style={{ paddingLeft: 5, paddingTop: 10 }}>
       <TouchableOpacity
         activeOpacity={1}
         style={{ padding: 10, flexDirection: 'row' }}
         onPress={() => {
-          setSettingType('update')
+          setSettingType('update');
         }}>
         <Text style={{ fontSize: 16, color: '#38434E', flex: 1 }}>Cập nhật thông tin</Text>
       </TouchableOpacity>
@@ -343,7 +345,7 @@ const LocationDetail = ({ navigation, route }) => {
         activeOpacity={1}
         style={{ padding: 10, flexDirection: 'row' }}
         onPress={() => {
-          setSettingType('delete')
+          setSettingType('delete');
         }}>
         <Text style={{ fontSize: 16, color: '#38434E', flex: 1 }}>Xóa vị trí</Text>
       </TouchableOpacity>

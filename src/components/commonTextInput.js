@@ -25,6 +25,7 @@ const CommonTextInput = ({
   isPassword = false,
   onPress,
   maxLength = 100,
+  editable = true,
 }) => {
   const [isShowPassword, setIsShowPassword] = useState(false);
   return (
@@ -51,6 +52,7 @@ const CommonTextInput = ({
             onFocus={onFocus}
             onBlur={onBlur}
             maxLength={maxLength}
+            editable={editable}
             {...inputProps}
           />
         </View>

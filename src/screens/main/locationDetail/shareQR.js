@@ -21,7 +21,7 @@ import {postConvertSVGToImage} from '../../../store/api/userApi';
 import {fillWifiSvg} from '../../../utils/func';
 
 export default function ShareQR({navigation, route}) {
-  console.log('shareQR', route.params);
+  // console.log('shareQR', route.params);
   const data = JSON.parse(route.params.item.data);
   const ssid = data.ssid;
   const password = data.password;
@@ -36,7 +36,7 @@ export default function ShareQR({navigation, route}) {
   const handleSVGWifi = async () => {
     setLoading(true);
     const svgWifi = await fillWifiSvg(shareQRSvg, ssid, password);
-    console.log('svgWifi', svgWifi);
+    // console.log('svgWifi', svgWifi);
     setSvgData(svgWifi);
     handleCapture(svgWifi.filePath);
   };
@@ -62,18 +62,18 @@ export default function ShareQR({navigation, route}) {
         name: 'wifi_qr.svg',
         type: 'image/svg+xml',
       });
-      console.log('uri', uri);
-      console.log('formData', formData);
+      // console.log('uri', uri);
+      // console.log('formData', formData);
       await postConvertSVGToImage(formData).then(async res => {
-        console.log('res', res);
+        console.log('postConvertSVGToImage', res);
         if (res) {
           const arrayBuffer = res;
           const base64data = global.Buffer.from(arrayBuffer).toString('base64'); // <-- Encode PNG to base64
           // 6️⃣ Save file to local storage
-          const filePath = `${RNFS.DocumentDirectoryPath}/converted_wifi.png`;
+          const filePath = `${RNFS.DocumentDirectoryPath}/converted_wifi.pdf`;
           await RNFS.writeFile(filePath, base64data, 'base64');
           setSvgData(prev => ({...prev, imgUri: `file://${filePath}`}));
-          console.log('✅ PNG saved at:', filePath);
+          // console.log('✅ PNG saved at:', filePath);
           setTimeout(() => {
             setLoading(false);
           }, 500);

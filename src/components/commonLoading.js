@@ -7,7 +7,7 @@ import {
   Modal,
   Image,
 } from 'react-native';
-import {icSuccess} from '../images';
+import {icCircleSuccess, icSuccess} from '../images';
 
 const CommonLoading = ({
   visible = false,
@@ -28,7 +28,7 @@ const CommonLoading = ({
         <View style={styles.loadingContainer}>
           {isComplete ? (
             <Image
-              source={icSuccess}
+              source={icCircleSuccess}
               style={{width: 50, height: 50}}
               resizeMode="contain"
             />
@@ -73,6 +73,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   loadingText: {
+    marginTop: 15,
     fontSize: 25,
     fontWeight: '500',
     textAlign: 'center',
