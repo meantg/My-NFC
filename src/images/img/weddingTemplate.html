@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Emma &amp; Liam — Our Wedding</title>
+    <style>
+      :root {
+        color-scheme: light;
+        font-family: "Georgia", "Times New Roman", serif;
+        --accent: #b88a58;
+        --accent-dark: #8e693f;
+        --text: #3a3a3a;
+        --light: #fdf8f3;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        background: var(--light);
+        color: var(--text);
+        line-height: 1.6;
+      }
+
+      header {
+        position: relative;
+        min-height: 70vh;
+        display: grid;
+        place-items: center;
+        text-align: center;
+        padding: 4rem 1.5rem;
+        color: #fff;
+        background: linear-gradient(
+            rgba(26, 22, 19, 0.55),
+            rgba(26, 22, 19, 0.55)
+          ),
+          url("https://images.unsplash.com/photo-1520854221050-0f4caff449fb?auto=format&fit=crop&w=1600&q=80")
+            center/cover no-repeat;
+      }
+
+      header h1 {
+        font-size: clamp(2.8rem, 6vw, 4.5rem);
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+      }
+
+      header p {
+        margin-top: 1rem;
+        font-size: 1.1rem;
+        letter-spacing: 0.4em;
+      }
+
+      .save-the-date {
+        margin-top: 2.5rem;
+        display: inline-block;
+        padding: 0.75rem 2.5rem;
+        border: 1px solid rgba(255, 255, 255, 0.75);
+        text-transform: uppercase;
+        letter-spacing: 0.2em;
+        transition: background 0.3s ease, color 0.3s ease;
+      }
+
+      .save-the-date:hover {
+        background: rgba(255, 255, 255, 0.8);
+        color: var(--accent-dark);
+      }
+
+      main section {
+        padding: clamp(3rem, 6vw, 6rem) clamp(1.5rem, 6vw, 8rem);
+      }
+
+      .reveal {
+        opacity: 0;
+        transform: translateY(50px);
+        transition: opacity 0.8s ease, transform 0.8s ease;
+      }
+
+      .reveal.visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      section h2 {
+        font-size: clamp(2rem, 4vw, 3rem);
+        text-align: center;
+        text-transform: uppercase;
+        letter-spacing: 0.25em;
+        color: var(--accent);
+        margin-bottom: 2rem;
+      }
+
+      .story {
+        background: #fff;
+      }
+
+      .story p {
+        max-width: 750px;
+        margin: 0 auto;
+        font-size: 1.05rem;
+        text-align: center;
+      }
+
+      .timeline {
+        background: var(--light);
+      }
+
+      .timeline ul {
+        list-style: none;
+        max-width: 680px;
+        margin: 0 auto;
+      }
+
+      .timeline li {
+        border-left: 2px solid var(--accent);
+        padding: 1.5rem 1.5rem 1.5rem 2rem;
+        margin-left: 1rem;
+        position: relative;
+      }
+
+      .timeline li::before {
+        content: "";
+        position: absolute;
+        left: -10px;
+        top: 1.5rem;
+        width: 12px;
+        height: 12px;
+        background: var(--accent);
+        border-radius: 50%;
+      }
+
+      .timeline h3 {
+        font-size: 1.25rem;
+        letter-spacing: 0.1em;
+        margin-bottom: 0.5rem;
+      }
+
+      .timeline p {
+        font-size: 1rem;
+        color: #5c5c5c;
+      }
+
+      .event-details {
+        background: #fff;
+      }
+
+      .event-grid {
+        display: grid;
+        gap: 2.5rem;
+        max-width: 900px;
+        margin: 0 auto;
+      }
+
+      .card {
+        padding: 2rem;
+        border: 1px solid #e4d4c3;
+        background: #fff;
+        text-align: center;
+      }
+
+      .card h3 {
+        font-size: 1.4rem;
+        text-transform: uppercase;
+        letter-spacing: 0.15em;
+        color: var(--accent-dark);
+        margin-bottom: 0.75rem;
+      }
+
+      .card p {
+        font-size: 1.05rem;
+        color: #555;
+      }
+
+      .rsvp {
+        background: var(--accent);
+        color: #fff;
+        text-align: center;
+      }
+
+      .rsvp p {
+        font-size: 1.1rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .rsvp a {
+        display: inline-block;
+        padding: 0.85rem 3rem;
+        border: 1px solid rgba(255, 255, 255, 0.8);
+        text-transform: uppercase;
+        letter-spacing: 0.2em;
+        color: inherit;
+        transition: background 0.3s ease, color 0.3s ease;
+      }
+
+      .rsvp a:hover {
+        background: #fff;
+        color: var(--accent-dark);
+      }
+
+      .travel {
+        background: #fff;
+      }
+
+      .travel-grid {
+        display: grid;
+        gap: 2rem;
+        max-width: 900px;
+        margin: 0 auto;
+      }
+
+      .travel-item h3 {
+        font-size: 1.3rem;
+        color: var(--accent-dark);
+        letter-spacing: 0.1em;
+        margin-bottom: 0.75rem;
+      }
+
+      footer {
+        padding: 2rem;
+        text-align: center;
+        font-size: 0.95rem;
+        background: #2c2622;
+        color: rgba(255, 255, 255, 0.7);
+      }
+
+      @media (min-width: 768px) {
+        .event-grid,
+        .travel-grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+          scroll-behavior: auto !important;
+        }
+        .reveal {
+          opacity: 1 !important;
+          transform: none !important;
+          transition: none !important;
+        }
+      }
+
+      .music-control {
+        position: fixed;
+        right: 1.5rem;
+        bottom: 1.5rem;
+        z-index: 999;
+        background: rgba(44, 38, 34, 0.85);
+        color: #fff;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 999px;
+        font-size: 0.9rem;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        cursor: pointer;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        transition: transform 0.3s ease, background 0.3s ease;
+      }
+
+      .music-control:hover {
+        transform: translateY(-4px);
+        background: rgba(184, 138, 88, 0.95);
+      }
+
+      .music-control:focus-visible {
+        outline: 3px solid rgba(255, 255, 255, 0.6);
+        outline-offset: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div>
+        <p>We Are Tying the Knot</p>
+        <h1>Emma &amp; Liam</h1>
+        <p>September 20, 2026</p>
+        <a class="save-the-date" href="#rsvp">Save the Date</a>
+      </div>
+    </header>
+
+    <main>
+      <section class="story reveal">
+        <h2>Our Story</h2>
+        <p>
+          From a chance meeting at a coffee shop to late-night walks under
+          city lights, our journey together has been filled with laughter,
+          adventure, and love. We are overjoyed to start the next chapter of
+          our lives surrounded by the people who mean the most to us.
+        </p>
+      </section>
+
+      <section class="timeline reveal">
+        <h2>The Celebration</h2>
+        <ul>
+          <li>
+            <h3>2:00 PM — Ceremony</h3>
+            <p>St. Augustine Chapel, 204 Willow Lane, Charleston, SC.</p>
+          </li>
+          <li>
+            <h3>4:00 PM — Cocktail Hour</h3>
+            <p>Garden Terrace, The Magnolia House.</p>
+          </li>
+          <li>
+            <h3>6:00 PM — Reception</h3>
+            <p>
+              Ballroom at The Magnolia House. Dinner, dancing, and toasts to
+              love.
+            </p>
+          </li>
+        </ul>
+      </section>
+
+      <section class="event-details reveal">
+        <h2>The Details</h2>
+        <div class="event-grid">
+          <article class="card">
+            <h3>Dress Code</h3>
+            <p>Formal attire. Please bring your best dancing shoes.</p>
+          </article>
+          <article class="card">
+            <h3>Gifts</h3>
+            <p>
+              Your presence is the greatest gift of all. Kindly visit our
+              registry for optional ideas.
+            </p>
+          </article>
+          <article class="card">
+            <h3>Children</h3>
+            <p>
+              We adore your little ones, however this will be an adult-only
+              celebration.
+            </p>
+          </article>
+          <article class="card">
+            <h3>Contact</h3>
+            <p>
+              Questions? Email our coordinator at
+              <a href="mailto:hello@emmaandliam.com">hello@emmaandliam.com</a>.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section class="rsvp reveal" id="rsvp">
+        <h2>RSVP</h2>
+        <p>
+          Kindly respond by August 1, 2026 so we can celebrate with you in our
+          favorite city.
+        </p>
+        <a href="https://example.com/rsvp" target="_blank" rel="noopener">
+          RSVP Online
+        </a>
+      </section>
+
+      <section class="travel reveal">
+        <h2>Travel &amp; Stay</h2>
+        <div class="travel-grid">
+          <div class="travel-item">
+            <h3>Hotels</h3>
+            <p>
+              We have reserved rooms at The Magnolia House and The Riverfront
+              Inn. Mention “Emma &amp; Liam” for preferred rates.
+            </p>
+          </div>
+          <div class="travel-item">
+            <h3>Transportation</h3>
+            <p>
+              Complimentary shuttles run between hotels and venues. Ride-share
+              apps and parking are also available at each location.
+            </p>
+          </div>
+          <div class="travel-item">
+            <h3>Things to Do</h3>
+            <p>
+              Explore Charleston’s historic district, waterfront parks, and
+              renowned cuisine during your stay.
+            </p>
+          </div>
+          <div class="travel-item">
+            <h3>Weekend Events</h3>
+            <p>
+              Join us for a welcome dinner on Friday night and a farewell brunch
+              on Sunday morning. Details to follow.
+            </p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      With love, Emma &amp; Liam • Thank you for being part of our story
+    </footer>
+
+    <audio id="bg-music" loop preload="auto">
+      <source src="audio.mp3" type="audio/mpeg" />
+    </audio>
+    <button class="music-control" type="button" id="music-toggle">
+      Play Music
+    </button>
+
+    <script>
+      (function () {
+        const sections = document.querySelectorAll(".reveal");
+        const prefersReducedMotion = window.matchMedia(
+          "(prefers-reduced-motion: reduce)"
+        ).matches;
+
+        if (!prefersReducedMotion && "IntersectionObserver" in window) {
+          const observer = new IntersectionObserver(
+            (entries) => {
+              entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                  entry.target.classList.add("visible");
+                  observer.unobserve(entry.target);
+                }
+              });
+            },
+            {
+              rootMargin: "0px 0px -10% 0px",
+              threshold: 0.1,
+            }
+          );
+
+          sections.forEach((section) => observer.observe(section));
+        } else {
+          sections.forEach((section) => section.classList.add("visible"));
+        }
+
+        const audio = document.getElementById("bg-music");
+        const toggle = document.getElementById("music-toggle");
+        let hasInteracted = false;
+
+        const updateButton = () => {
+          toggle.textContent = audio.paused ? "Play Music" : "Pause Music";
+        };
+
+        const tryPlay = () => {
+          audio
+            .play()
+            .then(() => {
+              updateButton();
+            })
+            .catch(() => {
+              // Autoplay blocked; wait for user interaction.
+            });
+        };
+
+        // Attempt to auto-play on page load
+        audio.volume = 0.5; // Set volume to 50%
+        tryPlay();
+
+        toggle.addEventListener("click", () => {
+          hasInteracted = true;
+          if (audio.paused) {
+            audio.play().finally(updateButton);
+          } else {
+            audio.pause();
+            updateButton();
+          }
+        });
+
+        // Try to play on first user interaction (click, scroll, touch)
+        const tryPlayOnInteraction = () => {
+          if (!hasInteracted && audio.paused) {
+            hasInteracted = true;
+            tryPlay();
+          }
+        };
+
+        window.addEventListener("scroll", tryPlayOnInteraction, { once: true });
+        window.addEventListener("click", tryPlayOnInteraction, { once: true });
+        window.addEventListener("touchstart", tryPlayOnInteraction, {
+          once: true,
+        });
+
+        document.addEventListener(
+          "visibilitychange",
+          () => {
+            if (document.hidden && !audio.paused) {
+              audio.pause();
+              updateButton();
+            }
+          },
+          false
+        );
+      })();
+    </script>
+  </body>
+</html>

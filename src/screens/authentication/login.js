@@ -121,11 +121,23 @@ const LoginScreen = ({navigation}) => {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <CommonLoading visible={loading} />
       <View style={styles.content}>
-        <Image
+        {/* <Image
           source={require('../../images/img/NextapLogo.png')}
           style={styles.logo}
           resizeMode="contain"
-        />
+        /> */}
+        <Text
+          style={[
+            styles.label,
+            {
+              fontSize: 45,
+              fontWeight: 'bold',
+              alignSelf: 'center',
+              marginBottom: 20,
+            },
+          ]}>
+          MyTap
+        </Text>
         <ScrollView scrollEnabled={false} style={styles.form}>
           <View style={styles.inputContainer}>
             <Text style={styles.label}>Email</Text>

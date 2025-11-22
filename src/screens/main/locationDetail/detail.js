@@ -16,6 +16,7 @@ import CommonButton from '../../../components/commonButton';
 import CommonHeader from '../../../components/commonHeader';
 import CommonModal from '../../../components/commonModal';
 import {
+  icCloseGrey,
   icEditGrey,
   icLoading,
   icSettingGrey,
@@ -165,6 +166,20 @@ const LocationDetail = ({ navigation, route }) => {
   };
 
   const deleteProduct = async () => {
+    if (settingType === 'deleteLostTag') {
+      await deleteTag(modalData._id)
+        .then(res => {
+          console.log('deleteProduct', res);
+          if (res.success) {
+            setIsModalVisible(false);
+            getLocationData();
+          }
+        })
+        .catch(err => {
+          console.log('deleteProduct error', err);
+        });
+      return;
+    }
     setModalType('readTag');
     await removePasswordProtection(modalData.key)
       .then(async res => {
@@ -291,8 +306,8 @@ const LocationDetail = ({ navigation, route }) => {
         />
         <CommonButton
           btnContainerStyle={{ width: '48%' }}
-          text={settingType === 'delete' ? 'Xóa' : 'Cập nhật'}
-          red={settingType === 'delete'}
+          text={settingType === 'delete' || settingType === 'deleteLostTag' ? 'Xóa' : 'Cập nhật'}
+          red={settingType === 'delete' || settingType === 'deleteLostTag'}
           onPress={async () => {
             if (settingType === 'delete') {
               await deleteLocation(locationData._id).then(res => {
@@ -311,6 +326,8 @@ const LocationDetail = ({ navigation, route }) => {
                   );
                 }
               });
+            } if (settingType === 'deleteLostTag') {
+              setIsModalSettingVisible(false);
             } else {
               await updateLocation({ locationId: locationData._id, locationData: { name: locationName } }).then(res => {
                 if (res.success) {
@@ -348,6 +365,14 @@ const LocationDetail = ({ navigation, route }) => {
           setSettingType('delete');
         }}>
         <Text style={{ fontSize: 16, color: '#38434E', flex: 1 }}>Xóa vị trí</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        activeOpacity={1}
+        style={{ padding: 10, flexDirection: 'row' }}
+        onPress={() => {
+          setSettingType('deleteLostTag');
+        }}>
+        <Text style={{ fontSize: 16, color: '#38434E', flex: 1 }}>Xóa thẻ bị mất</Text>
       </TouchableOpacity>
     </View>;
   };
@@ -408,6 +433,7 @@ const LocationDetail = ({ navigation, route }) => {
             }}>
             <CommonButton
               onPress={() => {
+                setSettingType(null);
                 setIsModalVisible(false);
               }}
               text="Đóng"
@@ -458,9 +484,13 @@ const LocationDetail = ({ navigation, route }) => {
         rightContent={
           <TouchableOpacity
             onPress={() => {
-              setIsModalSettingVisible(true);
+              if (settingType === 'deleteLostTag') {
+                setSettingType(null);
+              } else {
+                setIsModalSettingVisible(true);
+              }
             }}>
-            <Image source={icSettingGrey} style={{ width: 20, height: 20 }} />
+            <Image source={settingType === 'deleteLostTag' ? icCloseGrey : icSettingGrey} style={{ width: 20, height: 20 }} />
           </TouchableOpacity>
         }
       />
@@ -468,6 +498,7 @@ const LocationDetail = ({ navigation, route }) => {
       <ScrollView style={styles.formContainer}>
         {locationData?.products?.map((item, index) => (
           <LocationItem
+            onSelectItem={() => handleDeleteProduct(item)}
             key={index}
             index={index}
             handleEditProduct={handleEditProduct}
@@ -475,10 +506,12 @@ const LocationDetail = ({ navigation, route }) => {
             item={item}
             styles={styles}
             navigation={navigation}
+            isSelect={settingType === 'deleteLostTag'}
+            isCancel={settingType === null}
           />
         ))}
       </ScrollView>
-      <CommonButton
+      {settingType !== 'deleteLostTag' && <CommonButton
         text="Thêm Sản Phẩm"
         style={{
           margin: 12,
@@ -494,7 +527,7 @@ const LocationDetail = ({ navigation, route }) => {
           setIsModalVisible(true);
           handleReadTag();
         }}
-      />
+      />}
       {/* Bottom Buttons */}
       <CommonModal
         visible={isModalVisible}
@@ -550,8 +583,8 @@ const LocationDetail = ({ navigation, route }) => {
         }}
         // isHaveCloseBtn={false}
         content={renderModalSettingContent()}
-        isWarning={settingType === 'delete'}
-        warningTitle={settingType === 'delete' ? 'Bạn có chắc chắn muốn xóa vị trí này không?' : 'Bạn có chắc chắn muốn cập nhật thông tin vị trí này không?'}
+        isWarning={settingType === 'delete' || settingType === 'deleteLostTag'}
+        warningTitle={settingType === 'delete' ? 'Bạn có chắc chắn muốn xóa vị trí này không?' : settingType === 'deleteLostTag' ? 'Bạn có chắc chắn muốn xóa thẻ bị mất không? Việc xóa thẻ bị mất sẽ khiến thẻ không thể được cập nhật (bao gồm cả mật khẩu và thông tin đã lưu trên thẻ).' : 'Bạn có chắc chắn muốn cập nhật thông tin vị trí này không?'}
         bottomContent={settingType ? renderModalSettingButton() : null}
       />
     </KeyboardAvoidingView>

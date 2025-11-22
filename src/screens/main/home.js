@@ -196,7 +196,7 @@ const HomeScreen = ({ navigation }) => {
                 <Image source={icAddGrey} style={{ width: 24, height: 24 }} />
               </TouchableOpacity>
             </LinearGradient>
-            {item.products.map((item, idx) => (
+            {/* {item.products.map((item, idx) => (
               <View key={item.id} style={styles.productRow}>
                 <Image
                   source={icWifiGrey}
@@ -204,7 +204,7 @@ const HomeScreen = ({ navigation }) => {
                 />
                 <Text style={styles.productRowText}>{item.name}</Text>
               </View>
-            ))}
+            ))} */}
           </TouchableOpacity>
         )}
       />
@@ -215,7 +215,7 @@ const HomeScreen = ({ navigation }) => {
     <View style={commonStyles.container}>
       {/* User Info */}
       <View style={styles.header}>
-        <Image source={NextapLogo} style={styles.headerIcon} />
+        <Text style={[styles.headerTitle, {fontSize: 30, fontWeight: 'bold'}]}>MyTap</Text>
         <Text style={styles.headerTitle}>
           🤚 XIN CHÀO {user?.firstName?.toUpperCase()}{' '}
           {user?.lastName?.toUpperCase()} !

@@ -26,10 +26,10 @@ const PlusButton = ({navigation}) => {
           top: -15,
           borderRadius: 45,
         },
-        Platform.OS === 'ios' && {
-          borderWidth: 4,
-          borderColor: '#162ED033',
-        },
+        // Platform.OS === 'ios' && {
+        //   borderWidth: 4,
+        //   borderColor: '#162ED033',
+        // },
       ]}>
       <LinearGradient
         colors={['#1B38FF', '#071DAF']}
@@ -39,15 +39,13 @@ const PlusButton = ({navigation}) => {
           zIndex: 1000,
           borderWidth: 4,
           borderColor: '#162ED033',
-          width: 52,
-          height: 52,
           borderRadius: 45,
         }}>
         <TouchableOpacity
           activeOpacity={1}
           style={{
-            width: 44,
-            height: 44,
+            width: 45,
+            height: 45,
             borderRadius: 45,
             justifyContent: 'center',
             alignItems: 'center',
