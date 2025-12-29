@@ -12,6 +12,7 @@ import {
   updateLocation,
   deleteLocation,
   getListProducts,
+  pushProductToNfc,
 } from '../api/userApi';
 
 const initialState = {
@@ -227,6 +228,26 @@ export const deleteLocationAsync = createAsyncThunk(
       return rejectWithValue({
         success: false,
         message: error.message || 'Delete location failed',
+      });
+    }
+  },
+);
+
+export const pushProductToNfcAsync = createAsyncThunk(
+  'user/pushProductToNfc',
+  async (arrayData, {rejectWithValue}) => {
+    try {
+      // @ts-ignore
+      const response = await pushProductToNfc(arrayData);
+      if (response?.success === false) {
+        return rejectWithValue(response);
+      }
+      return response;
+    }
+    catch (error) {
+      return rejectWithValue({
+        success: false,
+        message: error.message || 'Push product to NFC failed',
       });
     }
   },

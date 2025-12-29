@@ -20,6 +20,7 @@ import {
   selectUserLastCheckedUID,
   clearError,
   resetKey,
+  pushProductToNfcAsync,
 } from '../slices/userSlice';
 
 export const useUser = () => {
@@ -147,6 +148,16 @@ export const useUser = () => {
     }
   };
 
+  const pushProductToNfc = async arrayData => {
+    try {
+      // @ts-ignore
+      const result = await dispatch(pushProductToNfcAsync(arrayData)).unwrap();
+      return {success: true, data: result};
+    } catch (err) {
+      return {success: false, error: err.message || 'Push product to NFC failed'};
+    }
+  };
+
   const clearUserError = () => {
     dispatch(clearError());
   };
@@ -175,6 +186,7 @@ export const useUser = () => {
     createLocation,
     updateLocation,
     deleteLocation,
+    pushProductToNfc,
     clearUserError,
     resetCurrentKey,
   };

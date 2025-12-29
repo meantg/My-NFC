@@ -31,20 +31,46 @@ import { useIsFocused } from '@react-navigation/native';
 import CommonModal from '../../components/commonModal';
 import CommonButton from '../../components/commonButton';
 import { readTag } from '../../utils/func';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { LOCAL_STORAGE_KEY } from '../../utils/const';
 
 const HomeScreen = ({ navigation }) => {
   const { user } = useAuth();
-  const { fetchProducts, adminCreateTag } = useUser();
+  const { fetchProducts, adminCreateTag, pushProductToNfc } = useUser();
   const isFocused = useIsFocused();
   const [lsLocation, setLsLocation] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [deviceType, setDeviceType] = useState('wifi');
-  const [readTagStep, setReadTagStep] = useState(1);
+  const [readTagStep, setReadTagStep] = useState(1);  
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
+
+  useEffect(() => {
+    loadSavedNfcData();
+  }, []);
+
   useEffect(() => {
     isFocused && getLocationData();
   }, [isFocused]);
+
+  const loadSavedNfcData = async () => {
+    const savedData = await AsyncStorage.getItem(LOCAL_STORAGE_KEY.NFC_DATA_LIST);
+    if (savedData) {
+      const parsedData = JSON.parse(savedData);
+      let pushData = parsedData.map(item => ({
+        name: item.name,
+        uid: item.uid,
+        key: item.key,
+        data: (item.data),
+      }));
+      await pushProductToNfc(pushData).then(async res => {
+        getLocationData();
+        if (res.success) {
+          await AsyncStorage.removeItem(LOCAL_STORAGE_KEY.NFC_DATA_LIST);
+        }
+      });
+    }
+  };
 
   const handleReadNFC = async () => {
     setReadTagStep(2);

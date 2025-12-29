@@ -133,6 +133,17 @@ export const deleteLocation = async locationId => {
   }
 };
 
+export const pushProductToNfc = async arrayData => {
+  let response;
+  try {
+    response = await apiClient.put('/v1/group-products/push-product', arrayData);
+    return response.data;
+  } catch (error) {
+    console.log('api pushProductToNfc error', error);
+    return {success: false, ...error.response.data};
+  }
+};
+
 export const getListProducts = async () => {
   let response;
   try {

@@ -2,7 +2,7 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {LOCAL_STORAGE_KEY} from '../utils/const';
 
-export const domainAPI = 'https://apinextap.nexview.vn';
+export const domainAPI = 'https://apinextap.dispcloud.vn';
 
 // Create axios instance
 export const apiClient = axios.create({

@@ -10,6 +10,7 @@ import {
   updateUserProfile,
   changeUserPassword,
   forgotUserPassword,
+  deleteAccount,
 } from '../api/authApi';
 import {tokenService} from '../../services/apiService';
 
@@ -125,6 +126,24 @@ export const logoutUserAsync = createAsyncThunk(
       return rejectWithValue({
         success: false,
         message: error.message || 'Logout failed',
+      });
+    }
+  },
+);
+
+export const deleteAccountAsync = createAsyncThunk(
+  'auth/deleteAccount',
+  async (token, {rejectWithValue}) => {
+    try {
+      const response = await deleteAccount(token);
+      if (response.success === false) {
+        return rejectWithValue(response);
+      }
+      return response;
+    } catch (error) {
+      return rejectWithValue({
+        success: false,
+        message: error.message || 'Delete account failed',
       });
     }
   },

@@ -16,6 +16,7 @@ import {
   changeUserPasswordAsync,
   updateUserInfoAsync,
   forgotUserPasswordAsync,
+  deleteAccountAsync,
 } from '../slices/authSlice';
 
 export const useAuth = () => {
@@ -73,6 +74,16 @@ export const useAuth = () => {
       return {success: true};
     } catch (error) {
       return {success: false, error: error.message || 'Logout failed'};
+    }
+  };
+
+  const deleteAccount = async () => {
+    try {
+      // @ts-ignore
+      const result = await dispatch(deleteAccountAsync(token)).unwrap();
+      return {success: true, data: result};
+    } catch (error) {
+      return {success: false, error: error.message || 'Delete account failed'};
     }
   };
 
@@ -177,5 +188,6 @@ export const useAuth = () => {
     changePassword,
     updateUserInfo,
     forgotPassword,
+    deleteAccount,
   };
 };

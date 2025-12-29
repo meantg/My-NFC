@@ -37,6 +37,22 @@ export const logoutUser = async token => {
   }
 };
 
+export const deleteAccount = async token => {
+  let response;
+  try {
+    response = await apiClient.delete('/v1/users/delete', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  }
+  catch (error) {
+    console.log('API Fetch Error:', error);
+    return {success: false, ...error.response.data};
+  }
+};
+
 export const registerUser = async ({
   userData = {
     email: '',

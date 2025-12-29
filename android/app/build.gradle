@@ -102,6 +102,13 @@ android {
         versionName "1.0"
     }
 
+    ext {
+        react = [
+                // This tells Gradle exactly where to find your nvm-managed node executable
+                nodeExecutableAndArgs: ["/Users/meantg/.nvm/versions/node/v18.20.8/bin/node"]
+        ]
+    }
+
     splits {
         abi {
             reset()
