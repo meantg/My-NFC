@@ -1,0 +1,54 @@
+CHÍNH SÁCH QUYỀN RIÊNG TƯ
+
+Ứng dụng này được phát triển nhằm cung cấp dịch vụ cho người dùng. Chúng tôi tôn trọng và cam kết bảo vệ quyền riêng tư của bạn.
+
+1. Thông tin chúng tôi thu thập
+
+Ứng dụng có thể thu thập các loại thông tin sau:
+
+Thông tin cá nhân do người dùng cung cấp (ví dụ: email, tên đăng nhập)
+
+Thông tin thiết bị (loại thiết bị, hệ điều hành, phiên bản ứng dụng)
+
+Dữ liệu sử dụng ứng dụng (log, lỗi, thống kê)
+
+2. Mục đích sử dụng thông tin
+
+Thông tin được sử dụng để:
+
+Cung cấp và duy trì hoạt động của ứng dụng
+
+Cải thiện trải nghiệm người dùng
+
+Phân tích và khắc phục lỗi kỹ thuật
+
+Liên hệ hỗ trợ khi cần thiết
+
+3. Chia sẻ thông tin
+
+Chúng tôi không bán hoặc chia sẻ thông tin cá nhân của bạn cho bên thứ ba, ngoại trừ:
+
+Các dịch vụ phân tích và vận hành như Google Firebase
+
+Khi có yêu cầu hợp pháp từ cơ quan nhà nước
+
+4. Bảo mật dữ liệu
+
+Chúng tôi áp dụng các biện pháp bảo mật hợp lý để bảo vệ thông tin người dùng, tuy nhiên không thể đảm bảo an toàn tuyệt đối.
+
+5. Quyền của người dùng
+
+Người dùng có quyền:
+
+Yêu cầu xem, chỉnh sửa hoặc xóa dữ liệu cá nhân
+
+Ngừng sử dụng ứng dụng bất cứ lúc nào
+
+6. Thay đổi chính sách
+
+Chính sách này có thể được cập nhật theo thời gian. Mọi thay đổi sẽ được công bố trên trang này.
+
+7. Liên hệ
+
+Nếu bạn có bất kỳ câu hỏi nào, vui lòng liên hệ:
+📧 Email: your-email@example.com
