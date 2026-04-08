@@ -253,11 +253,6 @@ const HomeScreen = ({ navigation }) => {
             <Image source={icAddTagGrey} style={{ width: 24, height: 24 }} />
           </TouchableOpacity>
         )}
-        <TouchableOpacity
-          style={styles.addNewTagAdmin}
-          onPress={handleAddNewTag}>
-          <Image source={icAddTagGrey} style={{ width: 24, height: 24 }} />
-        </TouchableOpacity>
       </View>
       {renderProduct()}
       <CommonModal

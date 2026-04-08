@@ -1,5 +1,10 @@
 rootProject.name = 'MyNFC'
 
+def nodeExecutable = "/opt/homebrew/bin/node"
+gradle.ext.react = [
+    nodeExecutableAndArgs: [nodeExecutable]
+]
+
 apply from: file("../node_modules/@react-native-community/cli-platform-android/native_modules.gradle")
 applyNativeModulesSettingsGradle(settings)
 

@@ -268,6 +268,7 @@ const RegisterScreen = ({navigation}) => {
                 secureTextEntry={!showPassword}
                 autoCapitalize="none"
                 autoCorrect={false}
+                textContentType="oneTimeCode"
                 onFocus={() => setFocusedInput('password')}
                 onBlur={() => setFocusedInput(null)}
               />
@@ -293,6 +294,7 @@ const RegisterScreen = ({navigation}) => {
                 placeholderTextColor={'#787D90'}
                 value={confirmPassword}
                 onChangeText={setConfirmPassword}
+                textContentType="oneTimeCode"
                 secureTextEntry={!showConfirmPassword}
                 autoCapitalize="none"
                 autoCorrect={false}
